@@ -1,30 +1,62 @@
 # 2023RVOS
 
-#### 介绍
-2023 Riscv OS
+# Linux 開發環境
 
-#### 软件架构
-软件架构说明
+1. install crossed compiler(GCC)
+```bash
+$sudo apt update
+$sudo apt install gcc-riscv64-unknown-elf
+```
+2. install some tools
+```bash
+$sudo apt install gcc make perl dkms git
+```
+3. install gdb-multiarch
+```bash
+$sudo apt install gdb-multiarch
+```
+4. install qemu
+```bash
+$sudo apt install qemu-system-misc
+```
 
+# windows 開發環境 msys2
 
-#### 安装教程
+https://www.msys2.org
+Download and install MSYS2: https://sourceforge.net/projects/msys2/
+Open MSYS2 shell and run 
+```
+pacman -Syu
+```
+After some time you will be prompted to close the MSYS2 shell by clicking the "X" button, which you should do :-)
+Relaunch MSYS2 shell and run 
+```
+pacman -Su
+```
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1. crossed complie(Gcc)
+```
+pacman -S mingw-w64-x86_64-riscv64-unknown-elf-gcc
+```
 
-#### 使用说明
+2. install some tools
+```
+pacman -S git make autoconf gcc flex bison man perl python3
+```
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+3. install gdb-multiarh 
+```
+pacman -S mingw-w64-x86_64-gdb-multiarch
+```
+4. install qemu
+```
+pacman -S mingw-w64-x86_64-qemu
+```
 
-#### 参与贡献
+# vscode 安裝 (windows)
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+下載 vscode https://code.visualstudio.com
+並自行安裝
 
 
 #### 特技
