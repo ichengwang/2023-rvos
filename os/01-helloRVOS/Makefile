@@ -2,15 +2,13 @@ include ../../common.mk
 
 #startup
 SRCS_ASM += $(wildcard ./startup/*.S)
-INC += -I./startup
-
 #lib
 SRCS_C += $(wildcard ./lib/*.c)
-INC += -I./lib
-
 #kernel
 SRCS_C += $(wildcard ./kernel/*.c)
-INC += -I./kernel
+
+
+INC += -I./include
 
 OBJS = $(patsubst %.S, objs/%.o, $(notdir ${SRCS_ASM}))
 OBJS += $(patsubst %.c, objs/%.o, $(notdir ${SRCS_C}))

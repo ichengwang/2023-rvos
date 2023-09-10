@@ -1,11 +1,14 @@
-extern void uart_init(void);
-extern void uart_puts(char *s);
+#include "os.h"
 
 void start_kernel(void)
 {
 	uart_init();
 	uart_puts("Hello, RVOS!\n");
 
-	while (1) {}; // stop here!
+	char i=0;
+	while (1) {
+		kprintf("i=%d\n",i);
+		i++;
+	}; // stop here!
 }
 
