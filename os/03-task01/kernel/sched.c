@@ -14,7 +14,7 @@ void schedule()
 {
 	//get next task ctx_t in readyQueue
 	taskCB_t *nextTask= (taskCB_t*)TCBRdy.node.next;
-	ctx_t next = nextTask->ctx;
+	ctx_t *next = &nextTask->ctx;
 	list_remove((list_t*)nextTask);
 	//current task into ready queue
 	if (TCBRunning != NULL){//kernel
@@ -25,6 +25,6 @@ void schedule()
 	//
 	TCBRunning = nextTask;
 	nextTask->state = TASK_RUNNING;
-	switch_to(&next);
+	switch_to(next);
 }
 

@@ -1,11 +1,11 @@
 #include "os.h"
 
-#define DELAY 40000
+#define DELAY 40000000L
 
 
 
 static void myDelay(int Delay) {
-    for (int i=0;i<Delay;i++);
+    for (unsigned long long i=0;i<Delay;i++);
 }
 
 void user_task0(void *p)
@@ -16,6 +16,7 @@ void user_task0(void *p)
 		uart_puts("Task 0: Running... \n");
         myDelay(DELAY);
         task_yield();
+		uart_puts("return Task 0 \n");
 	}
 }
 
@@ -26,6 +27,7 @@ void user_task1(void *p)
 		uart_puts("Task 1: Running... \n");
 		myDelay(DELAY);
         task_yield();
+        uart_puts("return Task 1 \n");
 	}
 }
 
