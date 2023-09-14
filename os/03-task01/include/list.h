@@ -23,7 +23,6 @@ static inline void list_insert_after(list_t *l, list_t *n)
 {
     l->next->prev = n;
     n->next = l->next;
-
     l->next = n;
     n->prev = l;
 }
@@ -38,7 +37,6 @@ static inline void list_insert_before(list_t *l, list_t *n)
 {
     l->prev->next = n;
     n->prev = l->prev;
-
     l->prev = n;
     n->next = l;
 }

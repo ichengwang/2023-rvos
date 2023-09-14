@@ -13,9 +13,9 @@ void start_kernel(void)
 	uart_puts("Hello, RVOS!\n");
 
 	page_init();
-	loadTasks();
 	sched_init();
 	readyQ_init();
+	loadTasks();
 	schedule();
 	uart_puts("Would not go here!\n");
 	while (1) {}; // stop here!	

@@ -3,13 +3,11 @@
 /*!< Table use to save TCB pointer.              */
 taskCB_t    TCBTbl[256];
 
-taskCB_t *    TCBNext            = NULL;        /*!< Poniter to task that next scheduled by OS  */
 taskCB_t *    TCBRunning         = NULL;        /*!< Pointer to TCB that current running task.  */
-taskCB_t *    TCBRdy             = NULL;        /*!< READY list.                 */
+taskCB_t      TCBRdy;        /*!< READY list.                 */
 
-void readyQ_init()
-{
-    list_init((list_t*)TCBRdy);
+void readyQ_init() {
+    list_init((list_t *)&TCBRdy);
 }
 
 taskCB_t * getNewTCB(uint8_t index) {
@@ -41,6 +39,7 @@ err_t task_init(taskCB_t *ptcb, const char *name,
     ptcb->ctx.sp = (reg_t)(stack_start + stack_size);
     
     ptcb->priority    = priority;
+    list_init((list_t*)ptcb);
     return OK;
 }	
 
@@ -63,7 +62,7 @@ err_t task_resume(taskCB_t *ptcb)
 
     /* remove from suspend list */
     list_remove((list_t*)ptcb);
-    list_insert_before((list_t*)TCBRdy, (list_t*)ptcb); 
+    list_insert_before((list_t*)&TCBRdy, (list_t*)ptcb); 
     return OK;
 }
 
@@ -73,14 +72,12 @@ err_t task_yield(void)
 
     /* set to current task */
     ptcb = TCBRunning;
-
-    if (ptcb->state == TASK_READY)
-    {
+    if (ptcb->state == TASK_READY) {
         /* remove task from task list */
         list_remove((list_t*)ptcb);
         /* put task to end of ready queue */
-        list_insert_before((list_t*)TCBRdy, (list_t*)ptcb);
-        schedule();
+        list_insert_before((list_t*)&TCBRdy, (list_t*)ptcb);
     }
+    schedule();
     return OK;
 }
