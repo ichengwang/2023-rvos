@@ -6,9 +6,7 @@ taskCB_t    TCBTbl[256];
 taskCB_t *    TCBRunning         = NULL;        /*!< Pointer to TCB that current running task.  */
 taskCB_t      TCBRdy;        /*!< READY list.                 */
 
-void readyQ_init() {
-    list_init((list_t *)&TCBRdy);
-}
+
 
 taskCB_t * getNewTCB(uint8_t index) {
     return &TCBTbl[index];
