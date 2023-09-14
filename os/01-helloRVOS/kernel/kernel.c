@@ -5,10 +5,11 @@ void start_kernel(void)
 	uart_init();
 	uart_puts("Hello, RVOS!\n");
 
-	char i=0;
+	char ch;
 	while (1) {
-		kprintf("i=%d\n",i);
-		i++;
+		ch = uart_getc();
+		uart_putc(ch);
+		if (ch==0x0D) uart_putc(0x0A);
 	}; // stop here!
 }
 

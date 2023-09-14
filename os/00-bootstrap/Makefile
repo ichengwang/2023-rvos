@@ -1,4 +1,14 @@
-include ../../common.mk
+CROSS_COMPILE = riscv64-unknown-elf-
+CFLAGS = -nostdlib -fno-builtin -march=rv32imazicsr -mabi=ilp32 -g -Wall
+
+QEMU = qemu-system-riscv32
+QFLAGS = -nographic -smp 1 -machine virt -bios none
+
+GDB = ${CROSS_COMPILE}gdb
+CC = ${CROSS_COMPILE}gcc
+OBJCOPY = ${CROSS_COMPILE}objcopy
+OBJDUMP = ${CROSS_COMPILE}objdump
+
 
 SRCS_ASM = \
 	start.S \
@@ -8,6 +18,7 @@ SRCS_C = \
 
 OBJS = $(SRCS_ASM:.S=.o)
 OBJS += $(SRCS_C:.c=.o)
+
 
 .DEFAULT_GOAL := all
 all: os.elf
@@ -24,7 +35,6 @@ os.elf: ${OBJS}
 	${CC} ${CFLAGS} -c -o $@ $<
 
 run: all
-	@${QEMU} -M ? | grep virt >/dev/null || exit
 	@echo "Press Ctrl-A and then X to exit QEMU"
 	@echo "------------------------------------"
 	@${QEMU} ${QFLAGS} -kernel os.elf
@@ -36,11 +46,6 @@ debug: all
 	@${QEMU} ${QFLAGS} -kernel os.elf -s -S &
 	@${GDB} os.elf -q -x ../gdbinit
 
-debug_vscode: all
-	@echo "Press Ctrl-C and then input 'quit' to exit GDB and QEMU"
-	@echo "-------------------------------------------------------"
-	${QEMU} ${QFLAGS} -kernel os.elf -s -S
-
 .PHONY : code
 code: all
 	@${OBJDUMP} -S os.elf | less
@@ -48,4 +53,3 @@ code: all
 .PHONY : clean
 clean:
 	rm -rf *.o *.bin *.elf
-

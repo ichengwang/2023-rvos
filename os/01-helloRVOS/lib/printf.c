@@ -133,6 +133,6 @@ void panic(char *s)
 {
 	kprintf("panic: ");
 	kprintf(s);
-	printf("\n");
+	kprintf("\n");
 	while(1){};
 }

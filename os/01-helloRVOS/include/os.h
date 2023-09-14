@@ -11,6 +11,7 @@
 void uart_init();
 int uart_putc(char ch);
 void uart_puts(char *s);
+char uart_getc();
 
 /* printf */
 int  kprintf(const char* s, ...);
