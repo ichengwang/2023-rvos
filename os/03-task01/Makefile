@@ -17,6 +17,8 @@ INC += -I./include
 OBJS = $(patsubst %.S, objs/%.o, $(notdir ${SRCS_ASM}))
 OBJS += $(patsubst %.c, objs/%.o, $(notdir ${SRCS_C}))
 
+
+
 .DEFAULT_GOAL := all
 all: os.elf
 
