@@ -37,7 +37,7 @@ void user_task2(void *p)
 		uart_puts("Task 2: Running... \n");
 		myDelay(DELAY);
         task_yield();
-        uart_puts("return Task 2 \n");
+        /uart_puts("return Task 2 \n");
 	}
 }
 
