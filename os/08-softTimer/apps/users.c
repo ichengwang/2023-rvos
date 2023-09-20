@@ -12,10 +12,10 @@ void user_task0(void *p)
 	uart_puts("Task 0: Created!\n");
 
 	while (1){
-		uart_puts("Task 0: Running... \n");
-        myDelay(DELAY);
-        task_yield();
-		uart_puts("return Task 0 \n");
+		//uart_puts("Task 0: Running... \n");
+        //myDelay(DELAY);
+        //task_yield();
+		//uart_puts("return Task 0 \n");
 	}
 }
 
@@ -37,17 +37,37 @@ void user_task2(void *p)
 		uart_puts("Task 2: Running... \n");
 		myDelay(DELAY);
         task_yield();
-        /uart_puts("return Task 2 \n");
+        uart_puts("return Task 2 \n");
 	}
+}
+
+void user_task3(void *p)
+{
+	uart_puts("Task 3: Created!\n");
+	while (1) {
+		uart_puts("Task 3: Running... \n");
+		myDelay(DELAY);
+	}
+}
+
+void timeOut(void) 
+{
+	kprintf("Timer call back function\n");
 }
 
 void loadTasks(void)
 {
-    taskCB_t *task0, *task1, *task2;
+    taskCB_t *task0;//, *task1, *task2;
+/*
     task0 = task_create("task0", user_task0, NULL, 1024, 11,5000);
     task1 = task_create("task1", user_task1, NULL, 1024, 11,5000);
     task2 = task_create("task2", user_task2, NULL, 1024, 11,5000);
     task_startup(task0);
     task_startup(task1);
     task_startup(task2);
+*/
+    task0 = task_create("task0", user_task0, NULL, 1024, 11,5000);
+	uint16_t TimerID=createTimer(TMR_PERIOD, 10, 10, timeOut);
+	startTimer(TimerID);
+	task_startup(task0);
 }

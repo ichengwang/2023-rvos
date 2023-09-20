@@ -2,6 +2,7 @@
 
 /* defined in entry.S */
 extern void switch_to(ctx_t *next);
+extern void switch_first(ctx_t *next);
 extern taskCB_t TCBRdy[];
 extern taskCB_t * TCBRunning; 
 extern ctx_t kernel_context;

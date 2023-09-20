@@ -63,6 +63,21 @@ void timer_load(int interval);
 void timer_init();
 void timer_handler();
 
+/* softtimer*/
+err_t createTimer(uint8_t timerType,  
+                  uint32_t timerCount,
+                  uint32_t timerReload,
+                  void(*callback)(void));
+void softTimer_init();
+err_t startTimer(uint16_t timerID);
+err_t stopTimer(uint16_t timerID);
+err_t delTimer(uint16_t timerID);
+uint32_t getCurTimerCnt(uint16_t timerID);
+err_t setCurTimerCnt(uint16_t timerID,
+                     uint32_t timerCount,
+                     uint32_t timerReload);
+void timerDispose(void);
+
 
 /* user*/
 void loadTasks(void);

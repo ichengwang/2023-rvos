@@ -19,6 +19,7 @@ void start_kernel(void)
 	readyQ_init();
 	trap_init();
 	timer_init();
+	softTimer_init();
 	sched_init();
 	loadTasks();	
 	schedule();

@@ -5,4 +5,4 @@
 #define PRIO_LEVEL          256
 /* interval ~= 1s */
 #define SYSTEM_TICK CLINT_TIMEBASE_FREQ
-#define MAX_TIMER           512
+#define MAX_TIMERS           512
