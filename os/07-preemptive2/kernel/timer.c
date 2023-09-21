@@ -3,7 +3,6 @@
 
 
 uint32_t _tick = 0;
-extern timerCB_t     *TimerList;
 
 /* load timer interval(in ticks) for next timer interrupt.*/
 void timer_load(int interval)
@@ -41,23 +40,11 @@ static void tick_dec() {
 		schedule();
 	}
 }
-static void timer_check()
-{
-	timerCB_t *pTimer = TimerList;
-	
-	if (!list_isempty((list_t*)pTimer)) {
-		pTimer = (timerCB_t*)TimerList->node.next;
-        pTimer->timerCnt--;
-		if (pTimer->timerCnt<=0)		
-			timerDispose();
-	}
-}
 
 void timer_handler() 
 {
 	_tick++;
-	kprintf("tick: %d\n", _tick);
+	//kprintf("tick: %d\n", _tick);
 	timer_load(SYSTEM_TICK);
 	tick_dec();
-	timer_check();
 }

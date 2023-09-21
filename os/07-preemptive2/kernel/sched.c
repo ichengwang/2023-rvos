@@ -10,12 +10,10 @@ extern ctx_t kernel_context;
 void sched_init()
 {
 	w_mscratch(0);
-	/* enable machine-mode software interrupts. */
-	//w_mie(r_mie() | MIE_MSIE);
 }
 
 
-static void do_schedule(void (*switchFunc)(ctx_t *ctx))
+void do_schedule(void (*sitchFunc)(ctx_t *ctx))
 {
 	taskCB_t *nextTask;
 	ctx_t *next;
@@ -35,25 +33,18 @@ static void do_schedule(void (*switchFunc)(ctx_t *ctx))
 	next = &nextTask->ctx;
 	list_remove((list_t*)nextTask);
 
-
 	//current task into ready queue
 	if (TCBRunning != NULL){//kernel
 		taskCB_t *currentTask = TCBRunning;
-		/*
-			權限比 TCBRunning低 且 不是在 waiting 就不用切換
-			如果currentTask 要 waiting，就必須要切換
-		*/
-	    if (currentTask->state == TASK_RUNNING) {  
-			if (currentTask->priority < nextTask->priority)
-				return;
-			currentTask->state = TASK_READY;
-			list_insert_before((list_t*)&TCBRdy[currentTask->priority], (list_t*)currentTask);
-		}
+		if (currentTask->priority < nextTask->priority)
+			return;
+		currentTask->state = TASK_READY;
+		list_insert_before((list_t*)&TCBRdy[currentTask->priority], (list_t*)currentTask);
 	} 
-	//
+	
 	TCBRunning = nextTask;
 	nextTask->state = TASK_RUNNING;
-	switchFunc(next);
+	sitchFunc(next);
 }
 
 void schedule()

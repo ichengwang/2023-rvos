@@ -1,5 +1,6 @@
 #include "os.h"
 #define MAP_SIZE sizeof(uint32_t)
+extern uint8_t need_schedule;
 /*!< Table use to save TCB pointer.              */
 timerCB_t    TIMCBTbl[MAX_TIMERS];
 uint32_t     TimerMap[MAX_TIMERS/MAP_SIZE];
@@ -67,7 +68,8 @@ return timer_id or fail
 err_t createTimer(uint8_t timerType,  
                   uint32_t timerCount,
                   uint32_t timerReload,
-                  void(*callback)(void)
+                  void(*callback)(void *parameter),
+                  void *parameter
                   )
 {
     spin_lock();
@@ -84,6 +86,7 @@ err_t createTimer(uint8_t timerType,
             TIMCBTbl[i].timerReload = timerReload;
             TIMCBTbl[i].timerCnt  = timerCount;
             TIMCBTbl[i].timerCallBack = callback;
+            TIMCBTbl[i].parameter = parameter;
             list_init((list_t*)&TIMCBTbl[i].node);
             return i;
         }
@@ -176,20 +179,26 @@ void timerDispose(void)
     timerCB_t * pTimer;
     
     pTimer = (timerCB_t *)TimerList->node.next;
-    while(pTimer != TimerList && pTimer->timerCnt == 0) {
+    while(pTimer != TimerList && pTimer->timerCnt <= 0) {
         switch(pTimer->timerType) {
             case TMR_ONE_SHOT:
                 removeTimerList(pTimer->timerID);
                 pTimer->timerState = TMR_STOPPED;
-                (pTimer->timerCallBack)();
+                (pTimer->timerCallBack)(pTimer->parameter);
                 break;
             case TMR_PERIOD:
                 removeTimerList(pTimer->timerID);
                 pTimer->timerCnt = pTimer->timerReload;
                 insertTimerList(pTimer->timerID);
-                (pTimer->timerCallBack)();
+                (pTimer->timerCallBack)(pTimer->parameter);
             break;
         }
         pTimer = (timerCB_t*)TimerList->node.next;
+    }
+    if (need_schedule) {
+        spin_lock();
+        need_schedule = 0;
+        spin_unlock();
+        schedule(); //now in ISR
     }
 }

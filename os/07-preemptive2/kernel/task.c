@@ -1,7 +1,5 @@
 #include "os.h"
 
-extern timerCB_t TIMCBTbl[];
-uint8_t need_schedule=0;
 /*!< Table use to save TCB pointer.              */
 taskCB_t    TCBTbl[MAX_USER_TASKS+SYS_TASK_NUM];
 
@@ -74,20 +72,6 @@ taskCB_t * getNewTCB(uint8_t index) {
     return &TCBTbl[index];
 }
 
-/*
-task delay wake up and insert into readyQ
-then schedule
-*/
-void taskTimeOut(void *parameter) 
-{
-    taskCB_t *ptcb = (taskCB_t*) parameter;
-    
-    kprintf("taskTimeout\n");
-    if (task_resume(ptcb)!=ERROR) {
-        need_schedule = 1;
-    }
-}
-
 err_t task_init(taskCB_t *ptcb, const char *name,
                   void (*taskFunc)(void *parameter),
                   void       *parameter,
@@ -118,9 +102,6 @@ err_t task_init(taskCB_t *ptcb, const char *name,
     ptcb->priority    = priority;
     ptcb->init_ticks = ticks;
     ptcb->remain_ticks = ticks;
-
-    int timerID = createTimer(TMR_ONE_SHOT, 0, 0, (void*)taskTimeOut, (void*)ptcb);   
-    ptcb->timer = &TIMCBTbl[timerID];    
 
     list_init((list_t*)ptcb);
     return OK;
@@ -186,46 +167,4 @@ err_t task_suspend(taskCB_t * ptcb)
 }
 
 
-void taskDelay(uint32_t ticks) 
-{
-    taskCB_t *task = getCurrentTask();
-    task->timer->timerCnt = ticks;
-    task->timer->timerType = TMR_ONE_SHOT;
-    task->state = TASK_SUSPEND;
-    list_remove((list_t*)task);
-    startTimer(task->timer->timerID);
-}
 
-/***********
- * idle task
-*/
-static void idle(void *p) 
-{
-    while(1) {
-        //do nothing now
-        //kprintf("idle task\n");
-    }
-}
-
-err_t idleTask_init()
-{
-    taskCB_t *ptcb = _getFreeTCB();
-    void *stack_start;
-    stack_start = (void*)&idle_stk;
-    memcpy(ptcb->name, "idle", sizeof(ptcb->name));
-    ptcb->entry = (void *)idle;
-    ptcb->parameter = NULL;
-    memset(ptcb->stack_addr, 0, ptcb->stack_size);
-    
-    ptcb->ctx.ra = (reg_t)idle;
-    ptcb->ctx.sp = (reg_t)(stack_start + SYS_STACK_SIZE);
-    ptcb->ctx.pc = (reg_t)idle;
-
-    ptcb->priority    = PRIO_LEVEL-1;
-    ptcb->init_ticks = 0;
-    ptcb->remain_ticks = 0;
-    ptcb->timer = NULL; //do not need timer   
-    list_init((list_t*)ptcb);
-    task_startup(ptcb);
-    return OK;
-}	

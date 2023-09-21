@@ -2,7 +2,6 @@
 #define __TASK_H__
 
 #include "types.h"
-#include "softtimer.h"
 
 /* task management */
 typedef struct context {
@@ -81,9 +80,6 @@ typedef struct taskCB
 	/* time slice*/
 	uint32_t init_ticks;
 	uint32_t remain_ticks;
-
-    /* append a timer for delay */
-	timerCB_t *timer;
 } taskCB_t;
 
 

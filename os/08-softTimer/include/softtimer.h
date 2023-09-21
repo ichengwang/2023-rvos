@@ -14,9 +14,10 @@ typedef struct timerCB                  /* Timer Control Block Define.        */
     uint16_t          timerID;             /*!< Timer ID.                        */
     uint8_t           timerType;           /*!< Timer Type.                      */
     uint8_t           timerState;          /*!< Timer State.                     */
-    uint32_t          timerCnt;            /*!< Timer Counter.                   */
+    int               timerCnt;            /*!< Timer Counter.                   */
     uint32_t          timerReload;         /*!< Timer Reload Counter Value.      */	
-    void (*timerCallBack)(void); /*!< Call-back Function When Timer overrun. */	
+    void (*timerCallBack)(void *parameter); /*!< Call-back Function When Timer overrun. */	
+    void *parameter;
 }timerCB_t;
 
 

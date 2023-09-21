@@ -18,11 +18,9 @@ void start_kernel(void)
 	InitTCBList();
 	readyQ_init();
 	trap_init();
-	softTimer_init();
-	idleTask_init();
-	loadTasks();	
 	timer_init();
-	sched_init();	
+	sched_init();
+	loadTasks();	
 	task_yield();
 	uart_puts("Would not go here!\n");
 	while (1) {}; // stop here!	
