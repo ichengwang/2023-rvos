@@ -1,9 +1,8 @@
 #include "os.h"
 
 
-
-uint32_t _tick = 0;
 extern timerCB_t     *TimerList;
+uint32_t _tick = 0;
 
 /* load timer interval(in ticks) for next timer interrupt.*/
 void timer_load(int interval)
@@ -26,7 +25,7 @@ void timer_init()
 	w_mie(r_mie() | MIE_MTIE);
 
 	/* enable machine-mode global interrupts. */
-	w_mstatus(r_mstatus() | MSTATUS_MIE);
+	//w_mstatus(r_mstatus() | MSTATUS_MIE);
 }
 
 static void tick_dec() {
@@ -41,8 +40,11 @@ static void tick_dec() {
 		schedule();
 	}
 }
+
+/* 08 */
 static void timer_check()
 {
+	
 	timerCB_t *pTimer = TimerList;
 	
 	if (!list_isempty((list_t*)pTimer)) {
@@ -51,13 +53,27 @@ static void timer_check()
 		if (pTimer->timerCnt<=0)		
 			timerDispose();
 	}
+	
 }
 
+static void showTick() 
+{
+	if (_tick%10==0) {
+		kprintf("tick: %d", _tick);
+		for(int i=0;i<=32;i++)
+			uart_putc(8);
+	}
+}
 void timer_handler() 
 {
 	_tick++;
-	kprintf("tick: %d\n", _tick);
+	showTick();
 	timer_load(SYSTEM_TICK);
 	tick_dec();
-	timer_check();
+	timer_check(); //08
+}
+
+uint64_t getTicks()
+{
+	return _tick;
 }

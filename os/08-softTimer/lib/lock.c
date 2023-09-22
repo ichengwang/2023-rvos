@@ -1,13 +1,14 @@
 #include "os.h"
 
-int spin_lock()
+reg_t spin_lock()
 {
-	w_mstatus(r_mstatus() & ~MSTATUS_MIE); //直接關閉中斷開關
-	return 0;
+	reg_t status;
+	status = r_mstatus();
+	w_mstatus(status & ~MSTATUS_MIE); //直接關閉中斷開關
+	return status;
 }
 
-int spin_unlock()
+void spin_unlock(reg_t status)
 {
-	w_mstatus(r_mstatus() | MSTATUS_MIE); //直接打開中斷開關
-	return 0;
+	w_mstatus(status); 
 }

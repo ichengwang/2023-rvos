@@ -24,10 +24,10 @@ reg_t trap_handler(reg_t epc, reg_t cause)
 			 * acknowledge the software interrupt by clearing
     			 * the MSIP bit in mip.
 			 */
-			//int id = r_mhartid();
-    		//*(uint32_t*)CLINT_MSIP(id) = 0;
+			int id = r_mhartid();
+    		*(uint32_t*)CLINT_MSIP(id) = 0;
 
-			//schedule();			
+			schedule();			
 			break;
 		case 7:
 			timer_handler();

@@ -56,28 +56,25 @@ err_t task_yield(void)
 {
     taskCB_t *ptcb;
 
-    spin_lock();
     /* set to current task */
     ptcb = TCBRunning;
 
-	if (ptcb==NULL) {
-		spin_unlock();
+	if (ptcb==NULL) {//first task
 		do_schedule(switch_to);
 	    return OK;	
 	}
-	kprintf("%s suspand\n", ptcb->name);
+	kprintf("%s suspend\n", ptcb->name);
     /* if the task stat is READY and on ready queue list */
-    if (ptcb->state == TASK_READY)
-    {
+    //if (ptcb->state == TASK_READY)
+    //{
         /* remove task from task list */
-        list_remove((list_t*)ptcb);
+    //    list_remove((list_t*)ptcb);
         /* put task to end of ready queue */
-        list_insert_before((list_t*)&TCBRdy[ptcb->priority], (list_t*)ptcb);
-        spin_unlock();
-        do_schedule(switch_to);
-        return OK;
-    }
-    spin_unlock();
+    //    list_insert_before((list_t*)&TCBRdy[ptcb->priority], (list_t*)ptcb);
+    //    spin_unlock();
+    //    do_schedule(switch_to);
+    //    return OK;
+    //}
 	do_schedule(switch_to);
     return OK;
 }

@@ -120,11 +120,11 @@ trap_vector:
 	# return to whatever we were doing before trap.
 	mret
 	
-# void switch_from_isr(struct context *next);
+# void switch_to(struct context *next);
 # a0: pointer to the context of the next task
-.globl switch_from_isr
+.globl switch_to
 .align 4
-switch_from_isr:
+switch_to:
 	# switch mscratch to point to the context of the next task
 	csrw	mscratch, a0
 	# set mepc to the pc of the next task
@@ -140,22 +140,10 @@ switch_from_isr:
 	# Notice this will enable global interrupt
 	mret
 
-# void switch_to(struct context *next);
-# a0: pointer to the context of the next task
-.globl switch_to
+
+.globl switch_first
 .align 4
-switch_to:
-	csrrw	t6, mscratch, t6	# swap t6 and mscratch
-	beqz	t6, 1f			# Notice: previous task may be NULL
-	reg_save t6			# save context of prev task
-
-	# Save the actual t6 register, which we swapped into
-	# mscratch
-	mv	t5, t6		# t5 points to the context of current task
-	csrr	t6, mscratch	# read t6 back from mscratch
-	sw	t6, 120(t5)	# save t6 with t5 as base
-
-1:
+switch_first:
 	# switch mscratch to point to the context of the next task
 	csrw	mscratch, a0
 
@@ -166,3 +154,5 @@ switch_to:
 
 	# Do actual context switching.
 	ret
+.end
+

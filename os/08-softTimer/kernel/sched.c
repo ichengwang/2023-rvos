@@ -2,7 +2,7 @@
 
 /* defined in entry.S */
 extern void switch_to(ctx_t *next);
-extern void switch_from_isr(ctx_t *next);
+extern void switch_first(ctx_t *next);
 extern taskCB_t TCBRdy[];
 extern taskCB_t * TCBRunning; 
 extern ctx_t kernel_context;
@@ -11,15 +11,16 @@ void sched_init()
 {
 	w_mscratch(0);
 	/* enable machine-mode software interrupts. */
-	//w_mie(r_mie() | MIE_MSIE);
+	w_mie(r_mie() | MIE_MSIE);
 }
 
 
-static void do_schedule(void (*switchFunc)(ctx_t *ctx))
+void schedule()
 {
 	taskCB_t *nextTask;
 	ctx_t *next;
 	taskCB_t *readyQ=NULL;
+	reg_t lock_status;
 
 	//get highest priority queue
 	for(int i=0;i<PRIO_LEVEL;i++) {
@@ -33,62 +34,33 @@ static void do_schedule(void (*switchFunc)(ctx_t *ctx))
 	//get next task
 	nextTask= (taskCB_t*)readyQ->node.next;
 	next = &nextTask->ctx;
+	lock_status = spin_lock();
 	list_remove((list_t*)nextTask);
 
 
 	//current task into ready queue
 	if (TCBRunning != NULL){//kernel
 		taskCB_t *currentTask = TCBRunning;
-		/*
+        /*
 			權限比 TCBRunning低 且 不是在 waiting 就不用切換
 			如果currentTask 要 waiting，就必須要切換
 		*/
 	    if (currentTask->state == TASK_RUNNING) {  
-			if (currentTask->priority < nextTask->priority)
+			if (currentTask->priority < nextTask->priority) {
+				spin_unlock(lock_status);
 				return;
+			}
 			currentTask->state = TASK_READY;
 			list_insert_before((list_t*)&TCBRdy[currentTask->priority], (list_t*)currentTask);
 		}
 	} 
-	//
 	TCBRunning = nextTask;
 	nextTask->state = TASK_RUNNING;
-	switchFunc(next);
-}
-
-void schedule()
-{
-	do_schedule(switch_from_isr);
-}
-
-err_t task_yield(void)
-{
-    taskCB_t *ptcb;
-
-    spin_lock();
-    /* set to current task */
-    ptcb = TCBRunning;
-
-	if (ptcb==NULL) {
-		spin_unlock();
-		do_schedule(switch_to);
-	    return OK;	
-	}
-	kprintf("%s suspand\n", ptcb->name);
-    /* if the task stat is READY and on ready queue list */
-    if (ptcb->state == TASK_READY)
-    {
-        /* remove task from task list */
-        list_remove((list_t*)ptcb);
-        /* put task to end of ready queue */
-        list_insert_before((list_t*)&TCBRdy[ptcb->priority], (list_t*)ptcb);
-        spin_unlock();
-        do_schedule(switch_to);
-        return OK;
-    }
-    spin_unlock();
-	do_schedule(switch_to);
-    return OK;
+	spin_unlock(lock_status);
+	if (r_mscratch()==0) 
+		switch_first(next);
+	else
+		switch_to(next);
 }
 
 

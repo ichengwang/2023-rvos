@@ -44,7 +44,7 @@ static void tick_dec() {
 void timer_handler() 
 {
 	_tick++;
-	kprintf("tick: %d\n", _tick);
+	//kprintf("tick: %d\n", _tick);
 	timer_load(SYSTEM_TICK);
 	tick_dec();
 }

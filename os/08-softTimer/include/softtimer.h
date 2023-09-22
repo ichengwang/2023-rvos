@@ -2,6 +2,7 @@
 #define __TIMER_H__
 #include "types.h"
 
+//all 08
 
 #define   TMR_RUNNING     0       /*!< Timer State: Running             */
 #define   TMR_STOPPED     1       /*!< Timer State: Stopped             */

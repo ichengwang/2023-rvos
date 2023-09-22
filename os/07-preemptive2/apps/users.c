@@ -8,10 +8,11 @@ static void myDelay(int Delay) {
 void user_task0(void *p)
 {
 	uart_puts("Task 0: Created!\n");
-
+	uint32_t i=0;
 	while (1){
-		uart_puts("Task 0: Running... \n");
-        //myDelay(DELAY);
+		i++;
+		kprintf("Task 0: Running... %d\n",i);
+        myDelay(DELAY);
 		task_yield();
 		uart_puts("return Task 0 \n");
 	}
@@ -20,9 +21,11 @@ void user_task0(void *p)
 void user_task1(void *p)
 {
 	uart_puts("Task 1: Created!\n");
-	while (1) {
-		uart_puts("Task 1: Running... \n");
-        //myDelay(DELAY);
+	uint32_t i=0;
+	while (1){
+		i++;
+		kprintf("Task 0: Running... %d\n",i);
+        myDelay(DELAY);
 		task_yield();
         uart_puts("return Task 1 \n");
 	}
@@ -31,9 +34,11 @@ void user_task1(void *p)
 void user_task2(void *p)
 {
 	uart_puts("Task 2: Created!\n");
-	while (1) {
-		uart_puts("Task 2: Running... \n");
-		//myDelay(DELAY);
+	uint32_t i=0;
+	while (1){
+		i++;
+		kprintf("Task 0: Running... %d\n",i);
+ 		myDelay(DELAY);
 		task_yield();
         uart_puts("return Task 2 \n");
 	}

@@ -171,13 +171,13 @@ err_t task_yield(void)
 {
     taskCB_t *ptcb;
 
-    spin_lock();
     /* set to current task */
     ptcb = TCBRunning;
 
     /* if the task stat is READY and on ready queue list */
     if (ptcb->state == TASK_READY)
     {
+        spin_lock();
         /* remove task from task list */
         list_remove((list_t*)ptcb);
         /* put task to end of ready queue */
@@ -186,7 +186,6 @@ err_t task_yield(void)
         schedule();
         return OK;
     }
-    spin_unlock();
  	/* trigger a machine-level software interrupt */
 	int id = r_mhartid();
 	*(uint32_t*)CLINT_MSIP(id) = 1;

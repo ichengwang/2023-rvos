@@ -81,8 +81,8 @@ typedef struct taskCB
 	/* time slice*/
 	uint32_t init_ticks;
 	uint32_t remain_ticks;
-
-    /* append a timer for delay */
+	
+	/* 08 append a timer for delay  */
 	timerCB_t *timer;
 } taskCB_t;
 

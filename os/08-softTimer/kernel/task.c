@@ -54,11 +54,12 @@ void readyQ_init() {
 static taskCB_t * _getFreeTCB(void)
 {
     taskCB_t * ptcb;
+    reg_t lock_status;
 
-    spin_lock();
+    lock_status = spin_lock();
     if(FreeTCB == NULL)                 /* Is there no free TCB               */
     {
-        spin_unlock();                  /* Yes,unlock schedule                */
+        spin_unlock(lock_status);                  /* Yes,unlock schedule                */
         return NULL;                    /* Error return                       */
     }	
     ptcb    = FreeTCB;          /* Yes,assgin free TCB for this task  */    
@@ -66,7 +67,7 @@ static taskCB_t * _getFreeTCB(void)
     FreeTCB = (taskCB_t *)ptcb->node.next; 
     ptcb->node.next = NULL;
     ptcb->node.prev = NULL;
-    spin_unlock();
+    spin_unlock(lock_status);
     return ptcb;        
 }
 
@@ -77,12 +78,13 @@ taskCB_t * getNewTCB(uint8_t index) {
 /*
 task delay wake up and insert into readyQ
 then schedule
+08
 */
 void taskTimeOut(void *parameter) 
 {
     taskCB_t *ptcb = (taskCB_t*) parameter;
     
-    kprintf("taskTimeout\n");
+    DEBUG("taskTimeout\n");
     if (task_resume(ptcb)!=ERROR) {
         need_schedule = 1;
     }
@@ -119,8 +121,9 @@ err_t task_init(taskCB_t *ptcb, const char *name,
     ptcb->init_ticks = ticks;
     ptcb->remain_ticks = ticks;
 
+    // 08
     int timerID = createTimer(TMR_ONE_SHOT, 0, 0, (void*)taskTimeOut, (void*)ptcb);   
-    ptcb->timer = &TIMCBTbl[timerID];    
+    ptcb->timer = &TIMCBTbl[timerID]; 
 
     list_init((list_t*)ptcb);
     return OK;
@@ -153,17 +156,18 @@ void task_startup(taskCB_t * ptcb)
 
 err_t task_resume(taskCB_t *ptcb)
 {
+    reg_t lock_status;
     if (ptcb->state != TASK_SUSPEND)
     {
         return ERROR;
     }
 
     //timer_stop(&ptcb->timer);
-    spin_lock(); 
+    lock_status = spin_lock(); 
     /* remove from suspend list */
     list_remove((list_t*)ptcb);
     list_insert_before((list_t*)&TCBRdy[ptcb->priority], (list_t*)ptcb); 
-    spin_unlock();
+    spin_unlock(lock_status);
 
     return OK;
 
@@ -175,35 +179,71 @@ err_t task_suspend(taskCB_t * ptcb)
     {
         return ERROR;
     }
-
-    spin_lock();
+    reg_t lock_status;
+    lock_status = spin_lock();
     /* change thread stat */
     list_remove((list_t*)ptcb);
     ptcb->state = TASK_SUSPEND;
 
-    spin_unlock();
+    spin_unlock(lock_status);
     return OK;
 }
 
 
-void taskDelay(uint32_t ticks) 
+err_t task_yield(void)
+{
+    taskCB_t *ptcb;
+
+    /* set to current task */
+    ptcb = TCBRunning;
+
+    /* if the task stat is READY and on ready queue list */
+    if (ptcb->state == TASK_READY)
+    {
+        reg_t lock_status;
+        lock_status = spin_lock();
+        /* remove task from task list */
+        list_remove((list_t*)ptcb);
+        /* put task to end of ready queue */
+        list_insert_before((list_t*)&TCBRdy[ptcb->priority], (list_t*)ptcb);
+        spin_unlock(lock_status);
+        schedule();
+        return OK;
+    }
+ 	/* trigger a machine-level software interrupt */
+	int id = r_mhartid();
+	*(uint32_t*)CLINT_MSIP(id) = 1;
+    return OK;
+}
+
+//08
+static void taskDelayTicks(uint32_t ticks) 
 {
     taskCB_t *task = getCurrentTask();
     task->timer->timerCnt = ticks;
     task->timer->timerType = TMR_ONE_SHOT;
     task->state = TASK_SUSPEND;
+    reg_t lock_status = spin_lock();
     list_remove((list_t*)task);
+    spin_unlock(lock_status);
     startTimer(task->timer->timerID);
+    task_yield();
+}
+
+void taskDelay(uint32_t sec) 
+{
+    taskDelayTicks(TICK_PER_SECOND* sec);
 }
 
 /***********
- * idle task
+ * idle task 08
 */
 static void idle(void *p) 
 {
     while(1) {
         //do nothing now
-        //kprintf("idle task\n");
+        //kprintf("                    idle task\n");
+        //task_yield();
     }
 }
 
@@ -224,7 +264,7 @@ err_t idleTask_init()
     ptcb->priority    = PRIO_LEVEL-1;
     ptcb->init_ticks = 0;
     ptcb->remain_ticks = 0;
-    ptcb->timer = NULL; //do not need timer   
+    //ptcb->timer = NULL; //do not need timer   
     list_init((list_t*)ptcb);
     task_startup(ptcb);
     return OK;

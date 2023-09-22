@@ -10,20 +10,24 @@ extern void page_init(void);
 
 void start_kernel(void)
 {
-	uart_init();
-	uart_puts("Hello, RVOS!\n");
 
+	uart_init();
+	uart_puts("Hello, RVOS!");
+	
+	w_mstatus(r_mstatus() & ~MSTATUS_MIE);
 	page_init();
 
 	InitTCBList();
 	readyQ_init();
 	trap_init();
-	softTimer_init();
-	idleTask_init();
-	loadTasks();	
 	timer_init();
+	softTimer_init(); //08
+	idleTask_init(); //08
+	loadTasks();
 	sched_init();	
-	task_yield();
+	w_mstatus(r_mstatus() | MSTATUS_MIE);
+
+	schedule();
 	uart_puts("Would not go here!\n");
 	while (1) {}; // stop here!	
 }

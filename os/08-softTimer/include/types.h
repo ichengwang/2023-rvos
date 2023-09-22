@@ -33,4 +33,16 @@ typedef struct list {
 typedef struct spinlock {
 	volatile uint32_t locked; 		//判斷是否有被佔有(佔有:1，未佔有:0)
 } spinlock_t;
+
+/****
+ * 08
+*/
+//#define DEBUGMSG
+
+#ifndef DEBUGMSG
+    #define DEBUG(f_, ...)
+#else
+    #define DEBUG(f_, ...) kprintf((f_), ##__VA_ARGS__)
+#endif
+
 #endif /* __TYPES_H__ */

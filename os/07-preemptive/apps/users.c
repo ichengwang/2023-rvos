@@ -1,5 +1,5 @@
 #include "os.h"
-#define DELAY 20000000L
+#define DELAY 2000000L
 
 
 
@@ -10,9 +10,9 @@ static void myDelay(int Delay) {
 void user_task0(void *p)
 {
 	uart_puts("Task 0: Created!\n");
-
+	uint32_t i=0;
 	while (1){
-		uart_puts("Task 0: Running... \n");
+		kprintf("Task 0: Running...%d \n", i++);
         myDelay(DELAY);
         task_yield();
 		uart_puts("return Task 0 \n");
@@ -22,8 +22,9 @@ void user_task0(void *p)
 void user_task1(void *p)
 {
 	uart_puts("Task 1: Created!\n");
-	while (1) {
-		uart_puts("Task 1: Running... \n");
+	uint32_t i=0;
+	while (1){
+		kprintf("Task 1: Running...%d \n", i++);
 		myDelay(DELAY);
         task_yield();
         uart_puts("return Task 1 \n");
@@ -33,8 +34,9 @@ void user_task1(void *p)
 void user_task2(void *p)
 {
 	uart_puts("Task 2: Created!\n");
-	while (1) {
-		uart_puts("Task 2: Running... \n");
+	uint32_t i=0;
+	while (1){
+		kprintf("Task 2: Running...%d \n", i++);
 		myDelay(DELAY);
         task_yield();
         uart_puts("return Task 2 \n");
