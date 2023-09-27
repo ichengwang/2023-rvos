@@ -16,7 +16,7 @@ static void _TaskToWait(uint16_t semID, taskCB_t *ptcb)
     switch (psemcb->sortType)
     {
     case FIFO:
-        list_insert_before(&(psemcb->node), (list_t*)ptcb);
+        list_insert_before((list_t *)psemcb, (list_t*)ptcb);
         break;
 
     case PRIO:
@@ -52,11 +52,12 @@ static void _WaitTaskToRdy(uint16_t id)
     }
 }
 
-static void _AllWaitTaskToRdy(uint16_t id)
+static err_t _AllWaitTaskToRdy(uint16_t id)
 {
     SemCB_t *psemcb = &SEMTbl[id];
     taskCB_t *ptcb;
     reg_t lock_status;
+    uint8_t need_schedule_here = 0;
     
     while(!list_isempty((list_t*)psemcb)) {
         lock_status = spin_lock();
@@ -68,7 +69,9 @@ static void _AllWaitTaskToRdy(uint16_t id)
         //to do
         task_resume(ptcb);
         spin_unlock(lock_status);
+        need_schedule_here=1;
     }
+    return need_schedule_here;
 }
 
 
@@ -99,16 +102,16 @@ err_t createSem(uint16_t initCnt,uint16_t maxCnt,uint8_t sortType)
 
  
 void delSem(uint16_t semID)
-{
-    /* wakeup all suspended threads */
-    _AllWaitTaskToRdy(semID);
-    
+{   
     /* free semaphore control block */
     int mapIndex = semID / MAP_SIZE;
     int mapOffset = semID % MAP_SIZE;
     reg_t lock_status = spin_lock();
     SemMap[mapIndex] &=~(1<<mapOffset);   
-    spin_unlock(lock_status);                               
+    spin_unlock(lock_status);  
+    /* wakeup all suspended threads */
+    if (_AllWaitTaskToRdy(semID))
+        task_yield();                             
 }
 
 /*
@@ -171,14 +174,14 @@ err_t sem_release(uint16_t semID)
         _WaitTaskToRdy(semID);
         need_schedule_sem = 1;
     } else {
-        if (psemcb->semCounter < MAX_SEM_VALUE)
+        if (psemcb->semCounter < MAX_SEM_VALUE) 
             psemcb->semCounter++;
         else {
             spin_unlock(lock_status);
             return E_FULL;
         }
     }
-    spin_lock(lock_status);
+    spin_unlock(lock_status);
     if (need_schedule_sem) 
         task_yield();
 

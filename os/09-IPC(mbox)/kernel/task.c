@@ -84,7 +84,7 @@ void taskTimeOut(void *parameter)
 {
     taskCB_t *ptcb = (taskCB_t*) parameter;
     
-    DEBUG("taskTimeout\n");
+    DEBUG("%s taskTimeout\n", ptcb->name);
     ptcb->returnMsg = E_TIMEOUT;
     if (task_resume(ptcb)!=ERROR) {
         need_schedule = 1;
@@ -176,10 +176,10 @@ err_t task_resume(taskCB_t *ptcb)
 
 err_t task_suspend(taskCB_t * ptcb)
 {
-    if (ptcb->state != TASK_READY)
-    {
-        return ERROR;
-    }
+   // if (ptcb->state != TASK_READY)
+   // {
+   //     return ERROR;
+   // }
     reg_t lock_status;
     lock_status = spin_lock();
     /* change thread stat */
