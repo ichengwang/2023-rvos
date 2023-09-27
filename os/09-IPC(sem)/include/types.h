@@ -20,11 +20,11 @@ typedef char err_t;
 #define ERROR -1
 
 /*---------------------------- Error Codes   ---------------------------------*/
-#define E_CREATE_FAIL          -1
+#define E_CREATE_FAIL         -1
 #define E_OK                    0
 #define E_EMPTY                 1  //09-sem
 #define E_FULL                  2  //09-sem
-#define E_TIMEOUT               3  //waiting time out 09-sem
+#define E_TIMEOUT               3  //waiting time out 09-sem          0
 
 typedef struct list {
     struct list *prev;
@@ -48,6 +48,7 @@ typedef struct spinlock {
     #define DEBUG(f_, ...) kprintf((f_), ##__VA_ARGS__)
 #endif
 
+
 //08 
 #define MAP_SIZE sizeof(uint32_t)
 
@@ -55,7 +56,4 @@ typedef struct spinlock {
 /* 09  Queue Type*/
 #define FIFO 0
 #define PRIO 1
-
-
-
 #endif /* __TYPES_H__ */

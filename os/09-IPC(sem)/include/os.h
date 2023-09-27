@@ -84,14 +84,16 @@ err_t setCurTimerCnt(uint16_t timerID,
                      uint32_t timerReload);
 void timerDispose(void);
 
-/* ipc semaphore*/
+
+/*IPC sem 09*/
 err_t createSem(uint16_t initCnt,uint16_t maxCnt,uint8_t sortType);
-err_t delSem(uint16_t semID);
+void delSem(uint16_t semID);
+/*
+timeout = 0, try, -1: for ever
+*/
 err_t sem_take(uint16_t semID, int timeout);
 err_t sem_trytake(uint16_t semID);
-err_t sem_release(uint16_t semID);    
-
-
+err_t sem_release(uint16_t semID);
 
 /* user*/
 void loadTasks(void);

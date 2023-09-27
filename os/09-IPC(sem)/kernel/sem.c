@@ -1,15 +1,13 @@
 #include "os.h"
 
-extern taskCB_t * TCBRunning;
-
 /*!< Table use to save SEM              */
-SemCB_t      SEMTbl[MAX_SEM];
-uint32_t     SemMap[MAX_SEM/MAP_SIZE];
+static SemCB_t      SEMTbl[MAX_SEM];
+static uint32_t     SemMap[MAX_SEM/MAP_SIZE];
 
 /**
 static functions
 */
-static void TaskToWait(uint16_t semID, taskCB_t *ptcb)
+static void _TaskToWait(uint16_t semID, taskCB_t *ptcb)
 {
     SemCB_t *psemcb = &SEMTbl[semID];
     /* suspend thread */
@@ -39,7 +37,7 @@ static void TaskToWait(uint16_t semID, taskCB_t *ptcb)
     }
 }
 
-static void WaitTaskToRdy(uint16_t id)
+static void _WaitTaskToRdy(uint16_t id)
 {
     SemCB_t *psemcb = &SEMTbl[id];
     
@@ -47,14 +45,14 @@ static void WaitTaskToRdy(uint16_t id)
         return;
     
     taskCB_t *ptcb = (taskCB_t *)psemcb->node.next;
-    if(ptcb == TCBRunning){
+    if(ptcb == getCurrentTask()){
 	    ptcb->state = TASK_RUNNING;
 	} else {
         task_resume(ptcb);
     }
 }
 
-static void AllWaitTaskToRdy(uint16_t id)
+static void _AllWaitTaskToRdy(uint16_t id)
 {
     SemCB_t *psemcb = &SEMTbl[id];
     taskCB_t *ptcb;
@@ -99,18 +97,17 @@ err_t createSem(uint16_t initCnt,uint16_t maxCnt,uint8_t sortType)
 }
 
  
-err_t delSem(uint16_t semID)
+void delSem(uint16_t semID)
 {
     /* wakeup all suspended threads */
-    AllWaitTaskToRdy(semID);
+    _AllWaitTaskToRdy(semID);
     
     /* free semaphore control block */
     int mapIndex = semID / MAP_SIZE;
     int mapOffset = semID % MAP_SIZE;
     reg_t lock_status = spin_lock();
     SemMap[mapIndex] &=~(1<<mapOffset);   
-    spin_unlock(lock_status);    
-    return E_OK;                      /* Return OK                            */
+    spin_unlock(lock_status);                               
 }
 
 /*
@@ -132,9 +129,9 @@ err_t sem_take(uint16_t semID, int timeout){
             return E_TIMEOUT;
         }
         //return OK
-        ptcb = TCBRunning;
+        ptcb = getCurrentTask();
         ptcb->returnMsg = E_OK;
-        TaskToWait(semID, ptcb);
+        _TaskToWait(semID, ptcb);
         /* has waiting time, start thread timer */      
         if (timeout > 0) {
             //waiting in delayList
@@ -166,7 +163,7 @@ err_t sem_release(uint16_t semID)
 
     if (!list_isempty((list_t*)psemcb)) {
         /* resume the suspended task */
-        WaitTaskToRdy(semID);
+        _WaitTaskToRdy(semID);
         need_schedule_sem = 1;
     } else {
         if (psemcb->semCounter < MAX_SEM_VALUE)

@@ -1,5 +1,5 @@
 #include "os.h"
-#define MAP_SIZE sizeof(uint32_t)
+
 extern uint8_t need_schedule;
 /*!< Table use to save TCB pointer.              */
 timerCB_t    TIMCBTbl[MAX_TIMERS];

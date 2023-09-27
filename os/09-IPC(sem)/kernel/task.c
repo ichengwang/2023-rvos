@@ -165,7 +165,6 @@ err_t task_resume(taskCB_t *ptcb)
     //timer_stop(&ptcb->timer);
     lock_status = spin_lock(); 
     /* remove from suspend list */
-    ptcb->state = TASK_READY;
     list_remove((list_t*)ptcb);
     list_insert_before((list_t*)&TCBRdy[ptcb->priority], (list_t*)ptcb); 
     spin_unlock(lock_status);

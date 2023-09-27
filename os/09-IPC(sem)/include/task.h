@@ -84,7 +84,7 @@ typedef struct taskCB
 	
 	/* 08 append a timer for delay  */
 	timerCB_t *timer;
-	
+
 	/* 09 IPC waiting return massage*/
 	err_t returnMsg;
 } taskCB_t;
