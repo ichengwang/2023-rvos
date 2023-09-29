@@ -88,7 +88,7 @@ typedef struct taskCB
 	/* 09 IPC waiting return massage*/
 	err_t returnMsg;
 
-	/* mail pointer */
+	/* mbox, mq data pointer*/
 	void *pmail;
 } taskCB_t;
 

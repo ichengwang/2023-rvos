@@ -8,26 +8,45 @@
 #include "list.h"
 #include "riscv.h"
 #include "softtimer.h"
-#include "sem.h"
+#include "ipc.h"
 
 #include <stddef.h>
 #include <stdarg.h>
 
+
+#ifndef DEBUGMSG
+#define spin_lock()\
+    spinLock();\
+    kprintf("%s call LOCK \n",__FUNCTION__);
+
+#define spin_unlock(_lock_status)\
+    spinUnLock(_lock_status);
+    
+#else
+#define spin_lock() \
+    spinLock();
+
+#define spin_unlock(lock_status) \
+    spinUnLock(lock_status);
+#endif
+
 /* uart */
-extern int uart_putc(char ch);
-extern void uart_puts(char *s);
+int uart_putc(char ch);
+void uart_puts(char *s);
 
 /* printf */
-extern int  kprintf(const char* s, ...);
-extern void panic(char *s);
+int  kprintf(const char* s, ...);
+void panic(char *s);
 
 /* mem */
 void *memset(void *ptr, int value, size_t num);
 char* memcpy(void* dest,const void* src, size_t num);
 
 /* lock */
-reg_t spin_lock();
-void spin_unlock(reg_t);
+reg_t spinLock();
+void spinUnLock(reg_t);
+void enableINT();
+void disableINT();
 
 /* memory management */
 extern void *page_alloc(int npages);
@@ -97,4 +116,11 @@ err_t sem_release(uint16_t semID);
 
 /* user*/
 void loadTasks(void);
+
+/* lib */
+/* queue */
+void TaskToWait(list_t *plist, uint8_t sortType, taskCB_t *ptcb);
+void WaitTaskToRdy(list_t *plist);
+err_t AllWaitTaskToRdy(list_t *plist);
+
 #endif /* __OS_H__ */

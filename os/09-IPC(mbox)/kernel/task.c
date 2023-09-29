@@ -87,7 +87,9 @@ void taskTimeOut(void *parameter)
     DEBUG("%s taskTimeout\n", ptcb->name);
     ptcb->returnMsg = E_TIMEOUT;
     if (task_resume(ptcb)!=ERROR) {
+        reg_t lock_status = spin_lock();
         need_schedule = 1;
+        spin_unlock(lock_status);
     }
 }
 

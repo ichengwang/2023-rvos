@@ -10,6 +10,8 @@ SRCS_C += $(wildcard ./kernel/*.c)
 SRCS_C += $(wildcard ./apps/*.c)
 #asm
 SRCS_ASM += $(wildcard ./asm/*.S)
+#debug
+SRCS_C += $(wildcard ./debug/*.c)
 
 
 INC += -I./include

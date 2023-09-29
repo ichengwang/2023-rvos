@@ -14,19 +14,19 @@ void start_kernel(void)
 	uart_init();
 	uart_puts("Hello, RVOS!");
 	
-	w_mstatus(r_mstatus() & ~MSTATUS_MIE);
+	disableINT();	
 	page_init();
 
 	InitTCBList();
 	readyQ_init();
 	trap_init();
-	timer_init();
+	//timer_init();
 	softTimer_init(); //08
 	idleTask_init(); //08
 	loadTasks();
 	sched_init();	
-	w_mstatus(r_mstatus() | MSTATUS_MIE);
-
+	
+	
 	schedule();
 	uart_puts("Would not go here!\n");
 	while (1) {}; // stop here!	

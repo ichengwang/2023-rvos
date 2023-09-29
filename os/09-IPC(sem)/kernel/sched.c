@@ -47,6 +47,8 @@ void schedule()
 		*/
 	    if (currentTask->state == TASK_RUNNING) {  
 			if (currentTask->priority < nextTask->priority) {
+				//no schedule so insert nextTask to Queue
+				list_insert_after((list_t*)&TCBRdy[nextTask->priority],(list_t*)nextTask);
 				spin_unlock(lock_status);
 				return;
 			}
@@ -57,8 +59,11 @@ void schedule()
 	TCBRunning = nextTask;
 	nextTask->state = TASK_RUNNING;
 	spin_unlock(lock_status);
-	if (r_mscratch()==0) 
+	if (r_mscratch()==0) {
+		enableINT();
+		timer_init();
 		switch_first(next);
+	}
 	else
 		switch_to(next);
 }

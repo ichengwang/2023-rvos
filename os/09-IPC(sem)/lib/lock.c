@@ -1,6 +1,6 @@
 #include "os.h"
 
-reg_t spin_lock()
+reg_t spinLock()
 {
 	reg_t status;
 	status = r_mstatus();
@@ -8,7 +8,18 @@ reg_t spin_lock()
 	return status;
 }
 
-void spin_unlock(reg_t status)
+void spinUnLock(reg_t status)
 {
-	w_mstatus(status); 
+	w_mstatus(status);
+	//kprintf("%s call unlock set=%x \n", status, __FUNCTION__);
+}
+
+void enableINT() 
+{
+	w_mstatus(r_mstatus() | MSTATUS_MIE);
+}
+
+void disableINT()
+{
+	w_mstatus(r_mstatus() & ~MSTATUS_MIE);
 }

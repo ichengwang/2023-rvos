@@ -40,7 +40,7 @@ typedef struct spinlock {
 /****
  * 08
 */
-//#define DEBUGMSG
+#define DEBUGMSG
 
 #ifndef DEBUGMSG
     #define DEBUG(f_, ...)

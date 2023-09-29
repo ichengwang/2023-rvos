@@ -66,6 +66,8 @@
 #define uart_read_reg(reg) (*(UART_REG(reg)))
 #define uart_write_reg(reg, v) (*(UART_REG(reg)) = (v))
 
+static int uart_sem;
+
 void uart_init()
 {
 	/* disable interrupts. */
@@ -102,6 +104,8 @@ void uart_init()
 	 */
 	lcr = 0;
 	uart_write_reg(LCR, lcr | (3 << 0));
+
+	uart_sem=(int) createSem(1,1,PRIO);
 }
 
 int uart_putc(char ch)
@@ -112,8 +116,10 @@ int uart_putc(char ch)
 
 void uart_puts(char *s)
 {
+	//while (sem_trytake(uart_sem)!=E_OK); 
 	while (*s) {
 		uart_putc(*s++);
 	}
+	//sem_release(uart_sem);
 }
 
