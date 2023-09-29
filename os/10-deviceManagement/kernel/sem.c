@@ -1,79 +1,8 @@
 #include "os.h"
 
 /*!< Table use to save SEM              */
-static SemCB_t      SEMTbl[MAX_SEM];
+SemCB_t      SEMTbl[MAX_SEM];
 static uint32_t     SemMap[MAX_SEM/MAP_SIZE];
-
-/**
-static functions
-*/
-static void _TaskToWait(uint16_t semID, taskCB_t *ptcb)
-{
-    SemCB_t *psemcb = &SEMTbl[semID];
-    /* suspend thread */
-    task_suspend(ptcb);
-
-    switch (psemcb->sortType)
-    {
-    case FIFO:
-        list_insert_before((list_t *)psemcb, (list_t*)ptcb);
-        break;
-
-    case PRIO:
-        {
-            list_t *plist = psemcb->node.next;
-            while(plist != (list_t *)psemcb) {
-                taskCB_t *ptcbNow = (taskCB_t *)plist;
-                if (ptcbNow->priority > ptcb->priority) 
-                    break;
-                plist = plist->next;
-            }
-            list_insert_before(plist, (list_t *)ptcb);
-        }
-        break;
-
-    default:
-        break;
-    }
-}
-
-static void _WaitTaskToRdy(uint16_t id)
-{
-    SemCB_t *psemcb = &SEMTbl[id];
-    
-    if (list_isempty((list_t*)psemcb))
-        return;
-    
-    taskCB_t *ptcb = (taskCB_t *)psemcb->node.next;
-    if(ptcb == getCurrentTask()){
-	    ptcb->state = TASK_RUNNING;
-	} else {
-        task_resume(ptcb);
-    }
-}
-
-static err_t _AllWaitTaskToRdy(uint16_t id)
-{
-    SemCB_t *psemcb = &SEMTbl[id];
-    taskCB_t *ptcb;
-    reg_t lock_status;
-    uint8_t need_schedule_here = 0;
-    
-    while(!list_isempty((list_t*)psemcb)) {
-        lock_status = spin_lock();
-        //get next task
-        ptcb = (taskCB_t*) psemcb->node.next;
-        list_remove((list_t*)ptcb);
-        ptcb->returnMsg = E_TIMEOUT;
-        //set error for return task???
-        //to do
-        task_resume(ptcb);
-        spin_unlock(lock_status);
-        need_schedule_here=1;
-    }
-    return need_schedule_here;
-}
-
 
 /***
  interface 
@@ -108,10 +37,14 @@ void delSem(uint16_t semID)
     int mapOffset = semID % MAP_SIZE;
     reg_t lock_status = spin_lock();
     SemMap[mapIndex] &=~(1<<mapOffset);   
-    spin_unlock(lock_status);  
     /* wakeup all suspended threads */
-    if (_AllWaitTaskToRdy(semID))
+    SemCB_t *psemcb = &SEMTbl[semID];
+    if (AllWaitTaskToRdy((list_t*)psemcb))//return 1: task_yield
+    {
+        spin_unlock(lock_status);  
         task_yield();                             
+    }else
+        spin_unlock(lock_status);  
 }
 
 /*
@@ -135,7 +68,7 @@ err_t sem_take(uint16_t semID, int timeout){
         //return OK
         ptcb = getCurrentTask();
         ptcb->returnMsg = E_OK;
-        _TaskToWait(semID, ptcb);
+        TaskToWait((list_t*)psemcb, psemcb->sortType, ptcb);
         /* has waiting time, start thread timer */      
         if (timeout > 0) {
             //waiting in delayList
@@ -171,9 +104,10 @@ err_t sem_release(uint16_t semID)
 
     if (!list_isempty((list_t*)psemcb)) {
         /* resume the suspended task */
-        _WaitTaskToRdy(semID);
+        WaitTaskToRdy((list_t*)psemcb);
         need_schedule_sem = 1;
     } else {
+        //showAllQ(semID);
         if (psemcb->semCounter < MAX_SEM_VALUE) 
             psemcb->semCounter++;
         else {

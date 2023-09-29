@@ -11,8 +11,8 @@ typedef unsigned long long uint64_t;
  */ 
 typedef uint32_t reg_t;
 typedef uint8_t state_t;
-typedef uint32_t size_t;
 typedef char err_t;
+typedef int size_t;
 
 #define NULL (void *)0
 #define TRUE 1
@@ -21,11 +21,15 @@ typedef char err_t;
 #define ERROR -1
 
 /*---------------------------- Error Codes   ---------------------------------*/
-#define E_CREATE_FAIL         -1
+#define E_CREATE_FAIL           -1
 #define E_OK                    0
 #define E_EMPTY                 1  //09-sem
 #define E_FULL                  2  //09-sem
 #define E_TIMEOUT               3  //waiting time out 09-sem          0
+#define E_DEV_OK                0
+#define E_DEV_FAIL              -1
+#define E_DEV_BUSY              1
+
 
 typedef struct list {
     struct list *prev;
@@ -41,7 +45,7 @@ typedef struct spinlock {
 /****
  * 08
 */
-//#define DEBUGMSG
+#define DEBUGMSG
 
 #ifndef DEBUGMSG
     #define DEBUG(f_, ...)

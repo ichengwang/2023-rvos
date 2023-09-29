@@ -174,7 +174,7 @@ void page_free(void *p)
 }
 
 
-void *malloc(size_t size)
+void *malloc(uint32_t size)
 {
   int res = size % PAGE_SIZE;
   int npages = size/PAGE_SIZE;

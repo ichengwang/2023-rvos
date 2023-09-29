@@ -50,14 +50,14 @@ enum deviceClass
 #define OFLAG_WRONLY          0x02           /**< write only access */
 #define OFLAG_RDWR            0x03           /**< read and write */
 #define OFLAG_OPEN            0x04           /**< device is opened */
-
+#define OFLAG_MASK            0xF0F           /**< mask of open flag */
 /**
  * general device commands
  */
-#define RT_DEVICE_CTRL_RESUME           0x01            /**< resume device */
-#define RT_DEVICE_CTRL_SUSPEND          0x02            /**< suspend device */
-#define RT_DEVICE_CTRL_CONFIG           0x03            /**< configure device */
-#define RT_DEVICE_CTRL_CLOSE            0x04            /**< close device */
+#define CTRL_RESUME           0x01            /**< resume device */
+#define CTRL_SUSPEND          0x02            /**< suspend device */
+#define CTRL_CONFIG           0x03            /**< configure device */
+#define CTRL_CLOSE            0x04            /**< close device */
 
 
 typedef struct device deviceCB_t;
@@ -74,17 +74,17 @@ struct device
     uint8_t         refCount;                /**< reference count */
 
     /* device call back function*/
-    err_t (*rxReady)(deviceCB_t dev, size_t size);
-    err_t (*txComplete)(deviceCB_t dev, void *buffer);
+    err_t (*rxReady)(deviceCB_t *dev, size_t size);
+    err_t (*txComplete)(deviceCB_t *dev, void *buffer);
     /* common device interface */
-    err_t  (*init)   (deviceCB_t dev);
-    err_t  (*open)   (deviceCB_t dev, uint16_t oflag);
-    err_t  (*close)  (deviceCB_t dev);
-    size_t (*read)   (deviceCB_t dev, int pos, void *buffer, size_t size);
-    size_t (*write)  (deviceCB_t dev, int pos, const void *buffer, size_t size);
-    err_t  (*control)(deviceCB_t dev, int cmd, void *args);
+    err_t  (*init)   (deviceCB_t *dev);
+    err_t  (*open)   (deviceCB_t *dev, uint16_t oflag);
+    err_t  (*close)  (deviceCB_t *dev);
+    size_t (*read)   (deviceCB_t *dev, int pos, void *buffer, size_t size);
+    size_t (*write)  (deviceCB_t *dev, int pos, const void *buffer, size_t size);
+    err_t  (*control)(deviceCB_t *dev, int cmd, void *args);
 
-    void                     *user_data;                /**< device private data */
+    void              *user_data;                /**< device private data */
 };
 
 #endif
