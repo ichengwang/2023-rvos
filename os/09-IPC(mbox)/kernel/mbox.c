@@ -22,6 +22,7 @@ err_t createMbox(uint8_t sortType)
             MboxTbl[i].mailPtr = NULL;
             MboxTbl[i].sortType = sortType;
             list_init((list_t*)&MboxTbl[i].node);
+            spin_unlock(lock_status);
             return i;
         }
     }

@@ -22,6 +22,7 @@ err_t createSem(uint16_t initCnt,uint16_t maxCnt,uint8_t sortType)
             SEMTbl[i].initialCounter = maxCnt;
             SEMTbl[i].sortType = sortType;
             list_init((list_t*)&SEMTbl[i].node);
+            spin_unlock(lock_status);
             return i;
         }
     }
