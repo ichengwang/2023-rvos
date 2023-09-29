@@ -1,6 +1,6 @@
 #include "os.h"
 
-
+extern deviceCB_t *console;
 extern timerCB_t     *TimerList;
 uint32_t _tick = 0;
 
@@ -58,10 +58,11 @@ static void timer_check()
 
 static void showTick() 
 {
+	char buf[2]={0x8,0x0};
 	if (_tick%10==0) {
 		kprintf("tick: %d", _tick);
 		for(int i=0;i<=32;i++)
-			uart_putc(8);
+			device_write(console,0,buf,1);
 	}
 }
 void timer_handler() 

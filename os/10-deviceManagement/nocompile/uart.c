@@ -114,7 +114,7 @@ int uart_putc(char ch)
 	return uart_write_reg(THR, ch);
 }
 
-void uart_puts(char *s)
+void DEBUG(char *s)
 {
 	//while (sem_trytake(uart_sem)!=E_OK); 
 	while (*s) {

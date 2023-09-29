@@ -96,7 +96,7 @@ err_t device_init(deviceCB_t *dev)
     {
         if (!(dev->deviceFlag & FLAG_ACTIVATED))
         {
-            result = dev->init(dev);
+            result = dev->init();
             if (result != E_DEV_OK)
                 kprintf("To initialize device:%s failed. The error code is %d\n",
                            dev->name, result);
@@ -119,7 +119,7 @@ err_t device_open(deviceCB_t *dev, uint16_t oflag)
     {
         if (dev->init)
         {
-            result = dev->init(dev);
+            result = dev->init();
             if (result != E_DEV_OK)
             {
                 kprintf("To initialize device:%s failed. The error code is %d\n",
@@ -138,7 +138,7 @@ err_t device_open(deviceCB_t *dev, uint16_t oflag)
 
     /* call device_open interface */
     if (dev->open)
-        result = dev->open(dev, oflag);
+        result = dev->open(oflag);
     else
         /* set open flag */
         dev->openFlag = (oflag & OFLAG_MASK);
@@ -174,7 +174,7 @@ err_t device_close(deviceCB_t *dev)
 
     if (dev->close)
         /* call device_close interface */
-        result = dev->close(dev);
+        result = dev->close();
 
     /* set open flag */
     if (result == E_DEV_OK)
@@ -195,7 +195,7 @@ size_t device_read(deviceCB_t *dev,
     if (dev->refCount == 0)
         return 0;
     if (dev->read)
-        return dev->read(dev, pos, buffer, size);
+        return dev->read(pos, buffer, size);
     return E_DEV_FAIL;
 }
 
@@ -214,7 +214,7 @@ size_t device_write(deviceCB_t *dev,
 
     if (dev->write)
         /* call device_write interface */
-        return dev->write(dev, pos, buffer, size);
+        return dev->write(pos, buffer, size);
     return E_DEV_FAIL;
 }
 
@@ -225,7 +225,7 @@ err_t device_control(deviceCB_t *dev, int cmd, void *arg)
 {
     /* call device_write interface */
     if (dev->control)
-        return dev->control(dev, cmd, arg);
+        return dev->control(cmd, arg);
     return E_DEV_FAIL;
 }
 
@@ -235,7 +235,7 @@ err_t device_control(deviceCB_t *dev, int cmd, void *arg)
  */
 err_t
 device_set_rxReady(deviceCB_t *dev,
-                          err_t (*rx_ind)(deviceCB_t *dev, size_t size))
+                          err_t (*rx_ind)(size_t size))
 {
     dev->rxReady = rx_ind;
     return E_DEV_OK;
@@ -247,7 +247,7 @@ device_set_rxReady(deviceCB_t *dev,
  */
 err_t
 device_set_txComplete(deviceCB_t *dev,
-                          err_t (*tx_done)(deviceCB_t *dev, void *buffer))
+                          err_t (*tx_done)(void *buffer))
 {
     dev->txComplete = tx_done;
     return E_DEV_OK;

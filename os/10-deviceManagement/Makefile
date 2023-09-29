@@ -13,6 +13,9 @@ SRCS_ASM += $(wildcard ./asm/*.S)
 #debug
 SRCS_C += $(wildcard ./debug/*.c)
 
+#drivers
+SRCS_C += $(wildcard ./drivers/*.c)
+
 
 INC += -I./include
 

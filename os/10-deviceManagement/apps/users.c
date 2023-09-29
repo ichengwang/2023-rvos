@@ -8,7 +8,7 @@ static void myDelay(int Delay) {
 
 void user_task0(void *p)
 {
-	uart_puts("Task 0: Created!\n");
+	DEBUG("Task 0: Created!\n");
 	uint32_t i=0;
 	while (1){
 		kprintf("				Task 0: dalay...%d \n", i);
@@ -16,13 +16,13 @@ void user_task0(void *p)
 		kprintf("				Task 0: wakeup...%d \n", i++);		
         shareRoutine(0,10);
 		myDelay(DELAY);
-        uart_puts("				return Task 0 \n");
+        DEBUG("				return Task 0 \n");
 	}
 }
 
 void user_task1(void *p)
 {
-	uart_puts("Task 1: Created!\n");
+	DEBUG("Task 1: Created!\n");
 	uint32_t i=0;
 	while (1){
 		kprintf("			Task 1: delay...%d \n", i++);
@@ -30,13 +30,13 @@ void user_task1(void *p)
 		kprintf("				Task 1: wakeup...%d \n", i++);		
         shareRoutine(1,3);
 		myDelay(DELAY);
-        uart_puts("				return Task 1 \n");
+        DEBUG("				return Task 1 \n");
 	}
 }
 
 void user_task2(void *p)
 {
-	uart_puts("Task 2: Created!\n");
+	DEBUG("Task 2: Created!\n");
 	uint32_t i=0;
 	while (1){
 		kprintf("			Task 2: delay...%d \n", i++);
@@ -44,13 +44,13 @@ void user_task2(void *p)
 		kprintf("				Task 2: wakeup...%d \n", i++);		
         shareRoutine(2,2);
 		myDelay(DELAY);
-        uart_puts("				return Task 2 \n");
+        DEBUG("				return Task 2 \n");
 	}
 }
 
 void user_task3(void *p)
 {
-	uart_puts("Task 3: Created!\n");
+	DEBUG("Task 3: Created!\n");
 	uint32_t i=0;
 	while (1){
 		kprintf("			Task 3: delay...%d \n", i++);
@@ -58,7 +58,7 @@ void user_task3(void *p)
 		kprintf("				Task 3: wakeup...%d \n", i++);		
         shareRoutine(3,5);
 		myDelay(DELAY);
-        uart_puts("				return Task 3 \n");
+        DEBUG("				return Task 3 \n");
 	}
 }
 

@@ -10,14 +10,15 @@
 #include "softtimer.h"
 #include "ipc.h"
 #include "devices.h"
+#include "console.h"
 
 #include <stdarg.h>
 
 
 #ifndef DEBUGMSG
 #define spin_lock()\
-    spinLock();\
-    kprintf("%s call LOCK \n",__FUNCTION__);
+    spinLock();
+    //kprintf("%s call LOCK \n",__FUNCTION__);
 
 #define spin_unlock(_lock_status)\
     spinUnLock(_lock_status);
@@ -31,8 +32,16 @@
 #endif
 
 /* uart */
-int     uart_putc(char ch);
-void    uart_puts(char *s);
+//int     uart_putc(char ch);
+//void    DEBUG(char *s);
+
+/*drivers*/
+void drivers_init();
+
+/* console */
+err_t waitRxData(int timeout);
+err_t console_init();
+void setConsole(deviceCB_t *drv);
 
 /* printf */
 int     kprintf(const char* s, ...);
@@ -155,8 +164,8 @@ size_t device_write(deviceCB_t *dev,
                     size_t   size);
 err_t device_control(deviceCB_t *dev, int cmd, void *arg);
 err_t device_set_rxReady(deviceCB_t *dev,
-                    err_t (*rx_ind)(deviceCB_t *dev, size_t size));
+                    err_t (*rx_ind)(size_t size));
 err_t device_set_txComplete(deviceCB_t *dev,
-                    err_t (*tx_done)(deviceCB_t *dev, void *buffer));
+                    err_t (*tx_done)(void *buffer));
 
 #endif /* __OS_H__ */

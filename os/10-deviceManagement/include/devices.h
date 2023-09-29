@@ -74,15 +74,15 @@ struct device
     uint8_t         refCount;                /**< reference count */
 
     /* device call back function*/
-    err_t (*rxReady)(deviceCB_t *dev, size_t size);
-    err_t (*txComplete)(deviceCB_t *dev, void *buffer);
+    err_t (*rxReady)(size_t size);
+    err_t (*txComplete)(void *buffer);
     /* common device interface */
-    err_t  (*init)   (deviceCB_t *dev);
-    err_t  (*open)   (deviceCB_t *dev, uint16_t oflag);
-    err_t  (*close)  (deviceCB_t *dev);
-    size_t (*read)   (deviceCB_t *dev, int pos, void *buffer, size_t size);
-    size_t (*write)  (deviceCB_t *dev, int pos, const void *buffer, size_t size);
-    err_t  (*control)(deviceCB_t *dev, int cmd, void *args);
+    err_t  (*init)   ();
+    err_t  (*open)   ();
+    err_t  (*close)  ();
+    size_t (*read)   (int pos, void *buffer, size_t size);
+    size_t (*write)  (int pos, const void *buffer, size_t size);
+    err_t  (*control)(int cmd, void *args);
 
     void              *user_data;                /**< device private data */
 };

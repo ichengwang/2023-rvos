@@ -4,6 +4,8 @@
  * ref: https://github.com/cccriscv/mini-riscv-os/blob/master/05-Preemptive/lib.c
  */
 
+extern deviceCB_t *console;
+
 static int _vsnprintf(char * out, size_t n, const char* s, va_list vl)
 {
 	int format = 0;
@@ -111,11 +113,13 @@ static int _vprintf(const char* s, va_list vl)
 {
 	int res = _vsnprintf(NULL, -1, s, vl);
 	if (res+1 >= sizeof(out_buf)) {
-		uart_puts("error: output string size overflow\n");
+		//DEBUG("error: output string size overflow\n");
+		device_write(console, 0, (void *)out_buf, res);
 		while(1) {}
 	}
 	_vsnprintf(out_buf, res + 1, s, vl);
-	uart_puts(out_buf);
+	//DEBUG(out_buf);
+	device_write(console, 0, (void *)out_buf, res);
 	return res;
 }
 
