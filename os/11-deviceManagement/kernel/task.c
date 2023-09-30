@@ -48,7 +48,7 @@ void readyQ_init() {
         list_init((list_t *)&TCBRdy[i]);
 }
 
-taskCB_t * getFreeTCB(void)
+static taskCB_t * _getFreeTCB(void)
 {
     taskCB_t * ptcb;
     reg_t lock_status;
@@ -133,7 +133,7 @@ taskCB_t * task_create(const char *name,
                   uint16_t    priority,
                   uint32_t    ticks)
 {
-    taskCB_t *ptcb = getFreeTCB();
+    taskCB_t *ptcb = _getFreeTCB();
     if (ptcb == NULL) { return NULL; }
     err_t ret = task_init(ptcb, name, taskFunc, parameter, stack_size, priority, ticks);
     if (ret == OK)
