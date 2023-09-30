@@ -10,7 +10,6 @@
 #include "softtimer.h"
 #include "ipc.h"
 #include "device.h"
-#include "console.h"
 
 #include <stdarg.h>
 
@@ -170,6 +169,6 @@ err_t device_set_txComplete(deviceCB_t *dev,
             
 /* drivers */
 void drivers_init();
-err_t console_init();
+err_t serial_init();
 
 #endif /* __OS_H__ */
