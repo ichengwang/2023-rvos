@@ -14,25 +14,17 @@
 #include <stdarg.h>
 
 
-#ifndef DEBUGMSG
-#define spin_lock()\
-    spinLock();\
-    kprintf("%s call LOCK \n",__FUNCTION__);
 
-#define spin_unlock(_lock_status)\
-    spinUnLock(_lock_status);
-    
-#else
 #define spin_lock() \
     spinLock();
 
 #define spin_unlock(lock_status) \
     spinUnLock(lock_status);
-#endif
+
 
 /* uart */
-int     uart_putc(char ch);
-void    uart_puts(char *s);
+err_t waitRxData(int timeout);
+err_t serial_init();
 
 /* printf */
 int     kprintf(const char* s, ...);
@@ -69,6 +61,7 @@ err_t   task_resume(taskCB_t *ptcb);
 err_t   task_suspend(taskCB_t * ptcb);
 err_t   task_yield(void);
 taskCB_t *getCurrentTask();
+char    *getCurrentTaskName();
 void    taskDelay(uint32_t);
 err_t   idleTask_init();
 

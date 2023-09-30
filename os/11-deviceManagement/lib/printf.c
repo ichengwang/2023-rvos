@@ -1,5 +1,6 @@
 #include "os.h"
 
+extern deviceCB_t *serial;
 /*
  * ref: https://github.com/cccriscv/mini-riscv-os/blob/master/05-Preemptive/lib.c
  */
@@ -111,11 +112,11 @@ static int _vprintf(const char* s, va_list vl)
 {
 	int res = _vsnprintf(NULL, -1, s, vl);
 	if (res+1 >= sizeof(out_buf)) {
-		uart_puts("error: output string size overflow\n");
+		serial->write(0,"error: output string size overflow\n",36);
 		while(1) {}
 	}
 	_vsnprintf(out_buf, res + 1, s, vl);
-	uart_puts(out_buf);
+	serial->write(0,out_buf,res);
 	return res;
 }
 

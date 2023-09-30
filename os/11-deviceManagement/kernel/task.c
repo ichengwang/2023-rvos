@@ -5,9 +5,6 @@ uint8_t need_schedule=0;
 /*!< Table use to save TCB pointer.              */
 taskCB_t    TCBTbl[MAX_USER_TASKS+SYS_TASK_NUM];
 
-/*!< The stack of IDLE task.                     */
-uint32_t   idle_stk[SYS_STACK_SIZE] = {0};
-
 taskCB_t *    TCBRunning         = NULL;        /*!< Pointer to TCB that current running task.  */
 taskCB_t *    FreeTCB            = NULL;         /*!< pointer to free TCB                        */
 taskCB_t      TCBRdy[PRIO_LEVEL];        /*!< READY list.                 */
@@ -51,7 +48,7 @@ void readyQ_init() {
         list_init((list_t *)&TCBRdy[i]);
 }
 
-static taskCB_t * _getFreeTCB(void)
+taskCB_t * getFreeTCB(void)
 {
     taskCB_t * ptcb;
     reg_t lock_status;
@@ -71,9 +68,6 @@ static taskCB_t * _getFreeTCB(void)
     return ptcb;        
 }
 
-taskCB_t * getNewTCB(uint8_t index) {
-    return &TCBTbl[index];
-}
 
 /*
 task delay wake up and insert into readyQ
@@ -139,7 +133,7 @@ taskCB_t * task_create(const char *name,
                   uint16_t    priority,
                   uint32_t    ticks)
 {
-    taskCB_t *ptcb = _getFreeTCB();
+    taskCB_t *ptcb = getFreeTCB();
     if (ptcb == NULL) { return NULL; }
     err_t ret = task_init(ptcb, name, taskFunc, parameter, stack_size, priority, ticks);
     if (ret == OK)
@@ -238,37 +232,3 @@ void taskDelay(uint32_t sec)
     taskDelayTicks(TICK_PER_SECOND* sec);
 }
 
-/***********
- * idle task 08
-*/
-static void idle(void *p) 
-{
-    while(1) {
-        //do nothing now
-        //kprintf("                    idle task\n");
-        //task_yield();
-    }
-}
-
-err_t idleTask_init()
-{
-    taskCB_t *ptcb = _getFreeTCB();
-    void *stack_start;
-    stack_start = (void*)&idle_stk;
-    memcpy(ptcb->name, "idle", sizeof(ptcb->name));
-    ptcb->entry = (void *)idle;
-    ptcb->parameter = NULL;
-    memset(ptcb->stack_addr, 0, ptcb->stack_size);
-    
-    ptcb->ctx.ra = (reg_t)idle;
-    ptcb->ctx.sp = (reg_t)(stack_start + SYS_STACK_SIZE);
-    ptcb->ctx.pc = (reg_t)idle;
-
-    ptcb->priority    = PRIO_LEVEL-1;
-    ptcb->init_ticks = 0;
-    ptcb->remain_ticks = 0;
-    //ptcb->timer = NULL; //do not need timer   
-    list_init((list_t*)ptcb);
-    task_startup(ptcb);
-    return OK;
-}	

@@ -25,7 +25,7 @@ reg_t trap_handler(reg_t epc, reg_t cause)
 		/* Asynchronous trap - interrupt */
 		switch (cause_code) {
 		case 3:
-			//uart_puts("software interruption!\n");
+			//DEBUG("software interruption!\n");
 			/*
 			 * acknowledge the software interrupt by clearing
     			 * the MSIP bit in mip.
@@ -42,7 +42,7 @@ reg_t trap_handler(reg_t epc, reg_t cause)
 			externalInterrupt();
 			break;
 		default:
-			uart_puts("unknown async exception!\n");
+			DEBUG("unknown async exception!\n");
 			break;
 		}
 	} else {
@@ -70,6 +70,6 @@ void trap_test()
 	int a = *(int *)0x00000000;
 
 	a = 100;
-	uart_puts("Yeah! I'm return back from trap!\n");
+	DEBUG("Yeah! I'm return back from trap!\n");
 }
 

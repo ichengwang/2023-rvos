@@ -98,7 +98,7 @@ err_t device_init(deviceCB_t *dev)
         {
             result = dev->init();
             if (result != E_DEV_OK)
-                kprintf("To initialize device:%s failed. The error code is %d\n",
+                DEBUG("To initialize device:%s failed. The error code is %d\n",
                            dev->name, result);
             else
                 dev->deviceFlag |= FLAG_ACTIVATED;
@@ -122,7 +122,7 @@ err_t device_open(deviceCB_t *dev, uint16_t oflag)
             result = dev->init();
             if (result != E_DEV_OK)
             {
-                kprintf("To initialize device:%s failed. The error code is %d\n",
+                DEBUG("To initialize device:%s failed. The error code is %d\n",
                             dev->name, result);
                     return result;
             }
@@ -150,7 +150,7 @@ err_t device_open(deviceCB_t *dev, uint16_t oflag)
 
         dev->refCount++;
         if (dev->refCount==0) //if too big to zero
-            kprintf("too many task ref\n");
+            DEBUG("too many task ref\n");
         result = E_DEV_FAIL;
     }
 

@@ -20,7 +20,7 @@ void start_kernel(void)
 	deviceList_init();
 	plic_init();
 	trap_init();
-	uart_init();
+	drivers_init();
 
 	timer_init();
 	softTimer_init(); //08
@@ -28,9 +28,9 @@ void start_kernel(void)
 	loadTasks();
 	sched_init();	
 	
-	
+	INFO("OS is scheduling....\n");
 	schedule();
-	uart_puts("Would not go here!\n");
+	INFO("Would not go here!\n");
 	while (1) {}; // stop here!	
 }
 

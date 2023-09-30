@@ -46,10 +46,18 @@ typedef struct spinlock {
 */
 #define DEBUGMSG
 
+#define INFO(f_, ...) kprintf((f_), ##__VA_ARGS__)
+
 #ifndef DEBUGMSG
     #define DEBUG(f_, ...)
 #else
-    #define DEBUG(f_, ...) kprintf((f_), ##__VA_ARGS__)
+    #define DEBUG(f_, ...) do{\
+            if (getCurrentTask()==NULL) \
+                kprintf("kernel, %s::",__FUNCTION__);\
+            else\
+                kprintf("%s, %s::", getCurrentTask()->name,__FUNCTION__);\
+            kprintf((f_), ##__VA_ARGS__);\
+        }while(0)
 #endif
 
 

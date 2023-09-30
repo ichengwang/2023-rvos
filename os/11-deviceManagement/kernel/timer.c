@@ -58,10 +58,10 @@ static void timer_check()
 
 static void showTick() 
 {
+	char erase[32]={[0 ... 31]=8};
 	if (_tick%10==0) {
 		kprintf("tick: %d", _tick);
-		for(int i=0;i<=32;i++)
-			uart_putc(8);
+		kprintf("%s",erase);
 	}
 }
 void timer_handler() 
