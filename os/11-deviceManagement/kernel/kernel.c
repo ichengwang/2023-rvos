@@ -12,7 +12,7 @@ void start_kernel(void)
 {
 
 	
-	disableINT();	
+	//disableINT();	
 	page_init();
 
 	InitTCBList();
@@ -29,7 +29,7 @@ void start_kernel(void)
 	sched_init();	
 	
 	INFO("OS is scheduling....\n");
-	schedule();
+	switchToFirstTask(); //idle task
 	INFO("Would not go here!\n");
 	while (1) {}; // stop here!	
 }

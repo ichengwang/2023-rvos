@@ -87,7 +87,7 @@ err_t createTimer(uint8_t timerType,
                   )
 {
     reg_t lock_status;
-    lock_status = spin_lock();
+    lock_status = baseLock();
     for (int i=0; i<MAX_TIMERS;i++) {
         int mapIndex = i / MAP_SIZE;
         int mapOffset = i % MAP_SIZE;
@@ -102,11 +102,11 @@ err_t createTimer(uint8_t timerType,
             TIMCBTbl[i].timerCallBack = callback;
             TIMCBTbl[i].parameter = parameter;
             list_init((list_t*)&TIMCBTbl[i].node);
-            spin_unlock(lock_status);
+            baseUnLock(lock_status);
             return i;
         }
     }
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
     return E_CREATE_FAIL;
 }
 
@@ -121,10 +121,10 @@ err_t startTimer(uint16_t timerID)
     }
     
     /* No,set timer status as TMR_RUNNING */
-    reg_t lock_status = spin_lock();
+    reg_t lock_status = baseLock();
     TIMCBTbl[timerID].timerState = TMR_RUNNING; 
     insertTimerList(timerID);               /* Insert this timer into timer list  */
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
     return E_OK;                        /* Return OK                          */
 }
 
@@ -134,11 +134,11 @@ err_t stopTimer(uint16_t timerID)
     //{
     //    return E_OK;                    /* Yes,do nothing,return OK           */
     //}
-    reg_t lock_status = spin_lock();
+    reg_t lock_status = baseLock();
     removeTimerList(timerID);             /* No,remove this timer from timer list */  
     /* Set timer status as TMR_STATE_STOPPED  */
     TIMCBTbl[timerID].timerState = TMR_STOPPED;	
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
     return E_OK;                        /* Return OK                          */
 }
 
@@ -147,7 +147,7 @@ err_t stopTimer(uint16_t timerID)
 */
 err_t delTimer(uint16_t timerID)
 {
-    reg_t lock_status = spin_lock();
+    reg_t lock_status = baseLock();
     if(TIMCBTbl[timerID].timerState == TMR_RUNNING) /* Is timer running?      */
     {
         removeTimerList(timerID);         /* Yes,remove this timer from timer list*/
@@ -155,7 +155,7 @@ err_t delTimer(uint16_t timerID)
     int mapIndex = timerID / MAP_SIZE;
     int mapOffset = timerID % MAP_SIZE;
     TimerMap[mapIndex] &=~(1<<mapOffset);   
-    spin_unlock(lock_status);     /* Release resource that this timer hold*/
+    baseUnLock(lock_status);     /* Release resource that this timer hold*/
     return E_OK;                      /* Return OK                            */
 }
 
@@ -173,7 +173,7 @@ err_t setCurTimerCnt(uint16_t timerID,
                      uint32_t timerReload)
 {
     reg_t lock_status;
-    lock_status = spin_lock();
+    lock_status = baseLock();
     TIMCBTbl[timerID].timerCnt    = timerCount; /* Reset timer counter and reload value */
     TIMCBTbl[timerID].timerReload = timerReload;						
     if(TIMCBTbl[timerID].timerState == TMR_RUNNING)   /* Is timer running?    */
@@ -181,7 +181,7 @@ err_t setCurTimerCnt(uint16_t timerID,
         removeTimerList(timerID);           /* Yes,reorder timer in timer list    */
         insertTimerList(timerID);	
     }
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
     return E_OK;                        /* Return OK                          */
 }
 
@@ -194,7 +194,7 @@ void timerDispose(void)
     timerCB_t * pTimer;
     //reg_t lock_status;
 
-    //lock_status = spin_lock();
+    //lock_status = baseLock();
     pTimer = (timerCB_t *)TimerList->node.next;
     while(pTimer != TimerList && pTimer->timerCnt <= 0) {
         switch(pTimer->timerType) {
@@ -212,11 +212,11 @@ void timerDispose(void)
         }
         pTimer = (timerCB_t*)TimerList->node.next;
     }
-    //spin_unlock(lock_status);
+    //baseUnLock(lock_status);
     if (need_schedule) {
-        //lock_status = spin_lock();
+        //lock_status = baseLock();
         need_schedule = 0;
-        //spin_unlock(lock_status);
+        //baseUnLock(lock_status);
         schedule(); //now in ISR
     }
 }

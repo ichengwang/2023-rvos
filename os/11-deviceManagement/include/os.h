@@ -10,36 +10,31 @@
 #include "softtimer.h"
 #include "ipc.h"
 #include "device.h"
+#include "marco.h"
 
 #include <stdarg.h>
 
 
 
-#define spin_lock() \
-    spinLock();
-
-#define spin_unlock(lock_status) \
-    spinUnLock(lock_status);
-
-
 /* uart */
 err_t waitRxData(int timeout);
-err_t serial_init();
+deviceCB_t* serial_init();
 
 /* printf */
 int     kprintf(const char* s, ...);
 void    panic(char *s);
 
-/* mem */
+/* libc */
 void *  memset(void *ptr, int value, size_t num);
 char *  memcpy(void* dest,const void* src, size_t num);
 int     strcmp(const char *s1, const char *s2);
 
 /* lock */
-reg_t   spinLock();
-void    spinUnLock(reg_t);
-void    enableINT();
-void    disableINT();
+reg_t   baseLock();
+void    baseUnLock(reg_t);
+void    lock_init(spinlock_t *lock);
+void    lock_acquire(spinlock_t *lock);
+void    lock_free(spinlock_t *lock);
 
 /* memory management */
 void    *page_alloc(int npages);
@@ -162,6 +157,10 @@ err_t device_set_txComplete(deviceCB_t *dev,
             
 /* drivers */
 void drivers_init();
-err_t serial_init();
+typedef struct console_dev {
+    deviceCB_t *dev;
+    spinlock_t lock;
+} console_t;
+
 
 #endif /* __OS_H__ */

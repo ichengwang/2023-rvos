@@ -50,14 +50,14 @@ err_t AllWaitTaskToRdy(list_t *plist)
     uint8_t need_schedule_here = 0;
     
     while(!list_isempty(plist)) {
-        lock_status = spin_lock();
+        lock_status = baseLock();
         //get next task
         ptcb = (taskCB_t*) plist->next;
         list_remove((list_t*)ptcb);
         //set error for return task???
         ptcb->returnMsg = E_TIMEOUT;
         task_resume(ptcb);
-        spin_unlock(lock_status);
+        baseUnLock(lock_status);
         need_schedule_here=1;
     }
     return need_schedule_here;

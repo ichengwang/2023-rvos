@@ -10,7 +10,7 @@ static uint32_t     SemMap[MAX_SEM/MAP_SIZE];
 err_t createSem(uint16_t initCnt,uint16_t maxCnt,uint8_t sortType)
 {
     reg_t lock_status;
-    lock_status = spin_lock();
+    lock_status = baseLock();
     for (int i=0; i<MAX_SEM;i++) {
         int mapIndex = i / MAP_SIZE;
         int mapOffset = i % MAP_SIZE;
@@ -22,11 +22,11 @@ err_t createSem(uint16_t initCnt,uint16_t maxCnt,uint8_t sortType)
             SEMTbl[i].initialCounter = maxCnt;
             SEMTbl[i].sortType = sortType;
             list_init((list_t*)&SEMTbl[i].node);
-            spin_unlock(lock_status);
+            baseUnLock(lock_status);
             return i;
         }
     }
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
     return E_CREATE_FAIL;
 }
 
@@ -36,16 +36,16 @@ void delSem(uint16_t semID)
     /* free semaphore control block */
     int mapIndex = semID / MAP_SIZE;
     int mapOffset = semID % MAP_SIZE;
-    reg_t lock_status = spin_lock();
+    reg_t lock_status = baseLock();
     SemMap[mapIndex] &=~(1<<mapOffset);   
     /* wakeup all suspended threads */
     SemCB_t *psemcb = &SEMTbl[semID];
     if (AllWaitTaskToRdy((list_t*)psemcb))//return 1: task_yield
     {
-        spin_unlock(lock_status);  
+        baseUnLock(lock_status);  
         task_yield();                             
     }else
-        spin_unlock(lock_status);  
+        baseUnLock(lock_status);  
 }
 
 /*
@@ -54,16 +54,16 @@ timeout = 0, try, -1: for ever
 err_t sem_take(uint16_t semID, int timeout){
     SemCB_t *psemcb = &SEMTbl[semID];
     taskCB_t *ptcb;
-    reg_t lock_status=spin_lock();
+    reg_t lock_status=baseLock();
 
     if (psemcb->semCounter > 0) {
         /* semaphore is available */
         psemcb->semCounter --;
-        spin_unlock(lock_status);
+        baseUnLock(lock_status);
     } else {
         /* no waiting, return with timeout */
         if (timeout == 0) {
-            spin_unlock(lock_status);
+            baseUnLock(lock_status);
             return E_TIMEOUT;
         }
         //return OK
@@ -76,7 +76,7 @@ err_t sem_take(uint16_t semID, int timeout){
             setCurTimerCnt(ptcb->timer->timerID,timeout, timeout);
             startTimer(ptcb->timer->timerID);
         }  
-        spin_unlock(lock_status);
+        baseUnLock(lock_status);
         task_yield();
 
         //wake up here if has a value or timeout
@@ -101,7 +101,7 @@ err_t sem_release(uint16_t semID)
     reg_t  need_schedule_sem;
     
     need_schedule_sem = 0;
-    reg_t lock_status = spin_lock();
+    reg_t lock_status = baseLock();
 
     if (!list_isempty((list_t*)psemcb)) {
         /* resume the suspended task */
@@ -112,11 +112,11 @@ err_t sem_release(uint16_t semID)
         if (psemcb->semCounter < MAX_SEM_VALUE) 
             psemcb->semCounter++;
         else {
-            spin_unlock(lock_status);
+            baseUnLock(lock_status);
             return E_FULL;
         }
     }
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
     if (need_schedule_sem) 
         task_yield();
 

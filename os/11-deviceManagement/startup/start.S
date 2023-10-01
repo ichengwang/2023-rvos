@@ -30,6 +30,23 @@ _start:
 	add	sp, sp, t0		# move the current hart stack pointer
 					# to its place in the stack space
 
+	# At the end of start_kernel, schedule() will call RET to switch
+	# to the first task, so we do first system task idle in machine mode
+	# in idle the last one instruction call task_yield will call MRET  
+	# so we parepare the mstatus here.
+	# Notice: default mstatus is 0	
+	# set mstatus.MPIE to 1, so MRET will enable the interrupt.
+	# set mstatus.MPP to 3, so we will run in Machine mode after MRET
+	# set mstatus.MPP as 0, we will run in User Mode after MRET
+#ifdef MACHINE_MODE
+	li	t0, 3 << 11 | 1 << 7
+#else
+	li t0, 1 << 7
+#endif
+	csrr	a1, mstatus
+	or	t0, t0, a1
+	csrw	mstatus, t0
+
 	j	start_kernel		# hart 0 jump to c
 
 park:

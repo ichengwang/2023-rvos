@@ -60,8 +60,8 @@ static void showTick()
 {
 	char erase[32]={[0 ... 31]=8};
 	if (_tick%10==0) {
-		kprintf("tick: %d", _tick);
-		kprintf("%s",erase);
+		lockfree_printf("tick: %d", _tick);
+		lockfree_printf("%s",erase);
 	}
 }
 void timer_handler() 

@@ -13,6 +13,7 @@ static void idle(void *p)
         //sometime, idle task set watchdog module
         //and when context switch to idle then reset watchdog
         //then when watchdog timeout, the system reboot.
+        task_yield();
     }
 }
 

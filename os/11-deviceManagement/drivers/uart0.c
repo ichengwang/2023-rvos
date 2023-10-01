@@ -77,8 +77,7 @@
 #define CONSOLE_PORT_NAME       "uart0"
 /* Semaphore used to receive messages */
 static err_t rx_sem;
-deviceCB_t *serial;
-
+static deviceCB_t *serial;
 
 /*
 hardware low level drivers implementations corresponding to deviceCB_t
@@ -181,7 +180,10 @@ void uart0_isr(void)
         //then access by pos offset
         //here we only send it back no process anymore
         char buffer[2]={0};
-        buffer[0] = rxChar;
+        if (rxChar == '\r')
+            buffer[0]='\n';
+        else 
+            buffer[0]=rxChar;
         serial->write(0,buffer, 1); 
     } else {
         char msg[]="only suppose rx interrupt\n";
@@ -189,11 +191,10 @@ void uart0_isr(void)
     }
 }
 
-err_t serial_init() {
-
+deviceCB_t * serial_init() {
     rx_sem = createSem(1,1,PRIO);
     if (rx_sem<0) {
-        return E_CREATE_FAIL;
+        return NULL;
     }
 
     serial = device_create(Device_Class_Char,CONSOLE_PORT_NAME);
@@ -209,10 +210,10 @@ err_t serial_init() {
     err_t regResult = device_register(serial, CONSOLE_PORT_NAME, 
                       FLAG_RDWR|FLAG_DEACTIVATE);
     if (regResult != E_DEV_OK) {
-        return E_CREATE_FAIL;
+        return NULL;
     }
 
     /* register ISR to ISRTbl*/
 	isrRegister(UART0_IRQ, uart0_isr);
-    return E_DEV_OK;
+    return serial;
 }

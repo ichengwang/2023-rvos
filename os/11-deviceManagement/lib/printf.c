@@ -1,6 +1,6 @@
 #include "os.h"
 
-extern deviceCB_t *serial;
+extern console_t console;
 /*
  * ref: https://github.com/cccriscv/mini-riscv-os/blob/master/05-Preemptive/lib.c
  */
@@ -106,21 +106,36 @@ static int _vsnprintf(char * out, size_t n, const char* s, va_list vl)
 	return pos;
 }
 
-static char out_buf[1000]; // buffer for _vprintf()
+#define MSG_BUF_SIZE 1000
+static char out_buf[MSG_BUF_SIZE]; 
 
 static int _vprintf(const char* s, va_list vl)
 {
 	int res = _vsnprintf(NULL, -1, s, vl);
 	if (res+1 >= sizeof(out_buf)) {
-		serial->write(0,"error: output string size overflow\n",36);
+		console.dev->write(0,"error: output string size overflow\n",36);
 		while(1) {}
 	}
 	_vsnprintf(out_buf, res + 1, s, vl);
-	serial->write(0,out_buf,res);
+	
+	console.dev->write(0,out_buf,res);
+	
 	return res;
 }
 
 int kprintf(const char* s, ...)
+{
+    int res = 0;
+	va_list vl;
+	va_start(vl, s);
+	lock_acquire(&console.lock);
+	res = _vprintf(s, vl);//如果這裡發生中斷，而ISR內又呼叫kprintf那就 lock住了
+	lock_free(&console.lock);
+	va_end(vl);
+	return res;
+}
+
+int lockfree_printf(const char* s, ...)
 {
 	int res = 0;
 	va_list vl;
@@ -132,8 +147,8 @@ int kprintf(const char* s, ...)
 
 void panic(char *s)
 {
-	kprintf("panic: ");
-	kprintf(s);
-	kprintf("\n");
+	lockfree_printf("panic: ");
+	lockfree_printf(s);
+	lockfree_printf("\n");
 	while(1){};
 }

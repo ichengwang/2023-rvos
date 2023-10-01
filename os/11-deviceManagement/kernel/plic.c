@@ -5,9 +5,9 @@ static void (*ISRTbl[MAX_EXTERNAL_INT])(void);
 
 
 void isrRegister(int irq, void(*isr)(void)) {
-    reg_t lock_status = spin_lock();
+    reg_t lock_status = baseLock();
     ISRTbl[irq] = isr;
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
 }
 
 void externalInterrupt() {

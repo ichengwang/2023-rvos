@@ -1,6 +1,35 @@
 #include "os.h"
 
-reg_t spinLock()
+/* for device*/
+void lock_init(spinlock_t *lock)
+{
+  lock->locked = 0;
+}
+
+void lock_acquire(spinlock_t *lock)
+{
+  for (;;)
+  {
+    if (!atomic_swap(lock,1))
+    {
+      break;
+    }
+  }
+}
+
+void lock_free(spinlock_t *lock)
+{
+  //lock->locked = 0;
+  for (;;)
+  {
+    if (atomic_swap(lock,0))
+    {
+      break;
+    }
+  }
+}
+
+reg_t baseLock()
 {
 	reg_t status;
 	status = r_mstatus();
@@ -8,18 +37,8 @@ reg_t spinLock()
 	return status;
 }
 
-void spinUnLock(reg_t status)
+void baseUnLock(reg_t status)
 {
 	w_mstatus(status);
 	//kprintf("%s call unlock set=%x \n", status, __FUNCTION__);
-}
-
-void enableINT() 
-{
-	w_mstatus(r_mstatus() | MSTATUS_MIE);
-}
-
-void disableINT()
-{
-	w_mstatus(r_mstatus() & ~MSTATUS_MIE);
 }

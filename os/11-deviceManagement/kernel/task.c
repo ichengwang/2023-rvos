@@ -53,10 +53,10 @@ static taskCB_t * _getFreeTCB(void)
     taskCB_t * ptcb;
     reg_t lock_status;
 
-    lock_status = spin_lock();
+    lock_status = baseLock();
     if(FreeTCB == NULL)                 /* Is there no free TCB               */
     {
-        spin_unlock(lock_status);                  /* Yes,unlock schedule                */
+        baseUnLock(lock_status);                  /* Yes,unlock schedule                */
         return NULL;                    /* Error return                       */
     }	
     ptcb    = FreeTCB;          /* Yes,assgin free TCB for this task  */    
@@ -64,7 +64,7 @@ static taskCB_t * _getFreeTCB(void)
     FreeTCB = (taskCB_t *)ptcb->node.next; 
     ptcb->node.next = NULL;
     ptcb->node.prev = NULL;
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
     return ptcb;        
 }
 
@@ -78,12 +78,12 @@ void taskTimeOut(void *parameter)
 {
     taskCB_t *ptcb = (taskCB_t*) parameter;
     
-    DEBUG("%s taskTimeout\n", ptcb->name);
+    DEBUG_ISR("%s taskTimeout\n", ptcb->name);//ISR中不能kprintf
     ptcb->returnMsg = E_TIMEOUT;
     if (task_resume(ptcb)!=ERROR) {
-        reg_t lock_status = spin_lock();
+        reg_t lock_status = baseLock();
         need_schedule = 1;
-        spin_unlock(lock_status);
+        baseUnLock(lock_status);
     }
 }
 
@@ -160,11 +160,11 @@ err_t task_resume(taskCB_t *ptcb)
     }
 
     //timer_stop(&ptcb->timer);
-    lock_status = spin_lock(); 
+    lock_status = baseLock(); 
     /* remove from suspend list */
     list_remove((list_t*)ptcb);
     list_insert_before((list_t*)&TCBRdy[ptcb->priority], (list_t*)ptcb); 
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
 
     return OK;
 
@@ -177,12 +177,12 @@ err_t task_suspend(taskCB_t * ptcb)
    //     return ERROR;
    // }
     reg_t lock_status;
-    lock_status = spin_lock();
+    lock_status = baseLock();
     /* change thread stat */
     list_remove((list_t*)ptcb);
     ptcb->state = TASK_SUSPEND;
 
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
     return OK;
 }
 
@@ -198,12 +198,12 @@ err_t task_yield(void)
     if (ptcb->state == TASK_READY)
     {
         reg_t lock_status;
-        lock_status = spin_lock();
+        lock_status = baseLock();
         /* remove task from task list */
         list_remove((list_t*)ptcb);
         /* put task to end of ready queue */
         list_insert_before((list_t*)&TCBRdy[ptcb->priority], (list_t*)ptcb);
-        spin_unlock(lock_status);
+        baseUnLock(lock_status);
         schedule();
         return OK;
     }
@@ -220,9 +220,9 @@ static void taskDelayTicks(uint32_t ticks)
     task->timer->timerCnt = ticks;
     task->timer->timerType = TMR_ONE_SHOT;
     task->state = TASK_SUSPEND;
-    reg_t lock_status = spin_lock();
+    reg_t lock_status = baseLock();
     list_remove((list_t*)task);
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
     startTimer(task->timer->timerID);
     task_yield();
 }

@@ -25,29 +25,31 @@ reg_t trap_handler(reg_t epc, reg_t cause)
 		/* Asynchronous trap - interrupt */
 		switch (cause_code) {
 		case 3:
-			//DEBUG("software interruption!\n");
+			//DEBUG_ISR("software interruption!\n");
 			/*
 			 * acknowledge the software interrupt by clearing
     			 * the MSIP bit in mip.
 			 */
 			int id = r_mhartid();
     		*(uint32_t*)CLINT_MSIP(id) = 0;
-
+			//DEBUG_ISR("schedule ISR\n");
 			schedule();			
 			break;
 		case 7:
+			//DEBUG_ISR("timer ISR\n");
 			timer_handler();
 			break;
 		case 11:
+			//DEBUG_ISR("external ISR\n");
 			externalInterrupt();
 			break;
 		default:
-			DEBUG("unknown async exception!\n");
+			DEBUG_ISR("unknown async exception!\n");
 			break;
 		}
 	} else {
 		/* Synchronous trap - exception */
-		kprintf("Sync exceptions!, code = %d\n", cause_code);
+		DEBUG_ISR("Sync exceptions!, code = %d\n", cause_code);
 		panic("OOPS! What can I do!");
 		//return_pc += 4;
 	}

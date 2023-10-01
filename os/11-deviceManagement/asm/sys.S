@@ -151,8 +151,21 @@ switch_first:
 	# Use t6 to point to the context of the new task
 	mv	t6, a0
 	reg_restore t6
-
+	
+	//then enable interrupt
+	csrr t1, mstatus
+	ori  t1, t1, 8 //MSTATUS_MIE
+	csrw mstatus, t1
 	# Do actual context switching.
 	ret
+
+.globl atomic_swap
+.align 4
+atomic_swap:
+        mv a5, a1
+        amoswap.w.aq a5, a5, 0(a0)
+        mv a0, a5
+        ret
+
 .end
 

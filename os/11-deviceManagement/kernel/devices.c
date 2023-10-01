@@ -17,9 +17,9 @@ err_t device_register(deviceCB_t *dev, const char *name, uint16_t flags)
     memcpy(dev->name,name,sizeof(dev->name));
     dev->name[sizeof(dev->name)-1]='\0';
     list_init((list_t*)&dev->node);
-    reg_t lock_status = spin_lock();
+    reg_t lock_status = baseLock();
     list_insert_after((list_t*)&deviceList, (list_t*)dev);
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
     return E_DEV_OK;
 }
 
@@ -29,9 +29,9 @@ err_t device_register(deviceCB_t *dev, const char *name, uint16_t flags)
 err_t device_unregister(deviceCB_t *dev)
 {
     //remove from deviceList
-    reg_t lock_status = spin_lock();
+    reg_t lock_status = baseLock();
     list_remove((list_t*)dev);
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
     return E_DEV_OK;
 }
 
@@ -42,7 +42,7 @@ err_t device_unregister(deviceCB_t *dev)
 deviceCB_t * device_find(const char *name)
 {
     list_t *pdevNode = deviceList.node.next;
-    reg_t lock_status = spin_lock();
+    reg_t lock_status = baseLock();
     while(pdevNode != (list_t*)&deviceList){
         deviceCB_t *pdev = (deviceCB_t*)pdevNode;
         if (strcmp(pdev->name, name)==0) {
@@ -50,7 +50,7 @@ deviceCB_t * device_find(const char *name)
         }
         pdevNode = pdevNode->next;
     }
-    spin_unlock(lock_status);
+    baseUnLock(lock_status);
     return NULL;
 }
 
