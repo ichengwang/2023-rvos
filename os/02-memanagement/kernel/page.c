@@ -23,8 +23,8 @@ static uint32_t _alloc_start = 0;
 static uint32_t _alloc_end = 0;
 static uint32_t _num_pages = 0;
 
-#define PAGE_SIZE 4096
-#define PAGE_ORDER 12
+#define PAGE_SIZE 256
+#define PAGE_ORDER 8
 
 #define PAGE_TAKEN (uint8_t)(1 << 0)
 #define PAGE_LAST  (uint8_t)(1 << 1)
@@ -82,7 +82,7 @@ void page_init()
 	 * We reserved 8 Page (8 x 4096) to hold the Page structures.
 	 * It should be enough to manage at most 128 MB (8 x 4096 x 4096) 
 	 */
-	_num_pages = (HEAP_SIZE / PAGE_SIZE) - 8;
+	_num_pages = (HEAP_SIZE / PAGE_SIZE) - 2048;
 	kprintf("HEAP_START = %x, HEAP_SIZE = %x, num of pages = %d\n", HEAP_START, HEAP_SIZE, _num_pages);
 	
 	struct Page *page = (struct Page *)HEAP_START;
@@ -91,7 +91,7 @@ void page_init()
 		page++;	
 	}
 
-	_alloc_start = _align_page(HEAP_START + 8 * PAGE_SIZE);
+	_alloc_start = _align_page(HEAP_START + 2048 * PAGE_SIZE);
 	_alloc_end = _alloc_start + (PAGE_SIZE * _num_pages);
 
 	kprintf("TEXT:   0x%x -> 0x%x\n", TEXT_START, TEXT_END);
@@ -105,7 +105,7 @@ void page_init()
  * Allocate a memory block which is composed of contiguous physical pages
  * - npages: the number of PAGE_SIZE pages to allocate
  */
-void *page_alloc(int npages)
+static void *page_alloc(int npages)
 {
 	/* Note we are searching the page descriptor bitmaps. */
 	int found = 0;
@@ -150,7 +150,7 @@ void *page_alloc(int npages)
  * Free the memory block
  * - p: start address of the memory block
  */
-void page_free(void *p)
+static  page_free(void *p)
 {
 	/*
 	 * Assert (TBD) if p is invalid
@@ -171,6 +171,20 @@ void page_free(void *p)
 			page++;;
 		}
 	}
+}
+
+void *malloc(size_t size)
+{
+  int res = size % PAGE_SIZE;
+  int npages = size/PAGE_SIZE;
+
+  if (res>0) npages++;
+  return page_alloc(npages);
+}
+
+void free(void *p)
+{
+	page_free(p);
 }
 
 void page_test()

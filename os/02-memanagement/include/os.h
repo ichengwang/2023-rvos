@@ -8,15 +8,16 @@
 #include <stdarg.h>
 
 /* uart */
-extern int uart_putc(char ch);
-extern void uart_puts(char *s);
+int uart_putc(char ch);
+void uart_puts(char *s);
 
 /* printf */
-extern int  kprintf(const char* s, ...);
-extern void panic(char *s);
+int kprintf(const char* s, ...);
+void panic(char *s);
 
 /* memory management */
-extern void *page_alloc(int npages);
-extern void page_free(void *p);
+void page_init();
+void *malloc(size_t size);
+void free(void *p);
 
 #endif /* __OS_H__ */

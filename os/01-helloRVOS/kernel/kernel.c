@@ -7,6 +7,7 @@ void start_kernel(void)
 
 	int i=10;
 	kprintf("i=%d\n",i);
-
+	while(1) 
+	{}
 }
 
