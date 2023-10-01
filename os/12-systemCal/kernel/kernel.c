@@ -27,9 +27,10 @@ void start_kernel(void)
 	idleTask_init(); //08
 	loadTasks();
 	sched_init();	
+	syscall_init();
 	
 	INFO("OS is scheduling....\n");
-	switchToFirstTask(); //idle task
+	schedule(); //idle task
 	INFO("Would not go here!\n");
 	while (1) {}; // stop here!	
 }

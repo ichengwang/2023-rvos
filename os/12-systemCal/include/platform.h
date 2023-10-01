@@ -68,4 +68,7 @@
 /* 10000000 ticks per-second */
 #define CLINT_TIMEBASE_FREQ 10000000
 
+
+#define CONFIG_USER_MODE
+
 #endif /* __PLATFORM_H__ */

@@ -1,5 +1,7 @@
 #include "os.h"
 
+extern int atomic_swap(spinlock_t *lock, int i);
+
 /* for device*/
 void lock_init(spinlock_t *lock)
 {

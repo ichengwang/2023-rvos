@@ -11,4 +11,4 @@
 #define MAX_SEM_VALUE       1024 //09 sem
 #define MAX_MBOXS           256
 #define MAX_EXTERNAL_INT    127
-//#define MACHINE_MODE
+#define MAX_SYSCALL         256

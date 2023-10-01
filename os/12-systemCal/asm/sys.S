@@ -108,6 +108,7 @@ trap_vector:
 	# call the C trap handler in trap.c
 	csrr	a0, mepc
 	csrr	a1, mcause
+	csrr	a2, mscratch     //ctx address
 	call	trap_handler
 
 	# trap_handler will return the return address via a0.
@@ -147,18 +148,12 @@ switch_first:
 	# switch mscratch to point to the context of the next task
 	csrw	mscratch, a0
 
-	# Restore all GP registers
-	# Use t6 to point to the context of the new task
-	mv	t6, a0
-	reg_restore t6
+	# set mepc to the pc of the next task
+	lw	a1, 124(a0)
+	csrw	mepc, a1
 	
-	//then enable interrupt before switch to first task idle
-	csrr t1, mstatus
-	ori  t1, t1, 8 //MSTATUS_MIE
-	csrw mstatus, t1
-
 	# Do actual context switching.
-	ret
+	mret
 
 .globl atomic_swap
 .align 4

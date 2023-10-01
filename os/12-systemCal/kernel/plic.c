@@ -26,7 +26,7 @@ void externalInterrupt() {
 void plic_init(void)
 {
 
-	reg_t hart = r_mhartid();
+	reg_t hart = r_tp();
 	/* 
 	 * 1. Set priority for UART0.
 	 */
@@ -54,7 +54,7 @@ void plic_init(void)
 
 int plic_claim(void)
 {
-	int hart = r_mhartid();
+	int hart = r_tp();
 	int irq = *(uint32_t*)PLIC_MCLAIM(hart);
 	return irq;
 }
@@ -62,6 +62,6 @@ int plic_claim(void)
 
 void plic_complete(int irq)
 {
-	int hart = r_mhartid();
+	int hart = r_tp();
 	*(uint32_t*)PLIC_MCOMPLETE(hart) = irq;
 }

@@ -11,6 +11,7 @@
 #include "ipc.h"
 #include "device.h"
 #include "marco.h"
+#include "usyscall.h"
 
 #include <stdarg.h>
 
@@ -22,6 +23,7 @@ deviceCB_t* serial_init();
 
 /* printf */
 int     kprintf(const char* s, ...);
+int     lockfree_printf(const char* s, ...);
 void    panic(char *s);
 
 /* libc */
@@ -67,7 +69,7 @@ void    schedule();
 
 /* trap */
 void    trap_init();
-reg_t   trap_handler(reg_t epc, reg_t cause);
+reg_t   trap_handler(reg_t epc, reg_t cause, ctx_t *ctx);
 
 /* timer */
 void    timer_load(int interval);
@@ -162,5 +164,9 @@ typedef struct console_dev {
     spinlock_t lock;
 } console_t;
 
+/* syscall*/
+void syscall_init();
+void syscall_register(uint16_t num, void *(*sysfunc)(void *p));
+void do_syscall(ctx_t *ctx);
 
 #endif /* __OS_H__ */
