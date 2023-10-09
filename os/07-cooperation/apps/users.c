@@ -18,8 +18,10 @@ void user_task0(void *p)
 		
 		myDelay(DELAY);
         
-		if (i%100==0) 
+		if (i%100==0) { 
 			uart_puts("return Task 0 \n");
+			task_yield();
+		}
 	}
 }
 
@@ -34,8 +36,10 @@ void user_task1(void *p)
 		
 		myDelay(DELAY);
         
-		if (i%100==0) 
+		if (i%100==0) { 
 			uart_puts("return Task 1 \n");
+			task_yield();
+		}
 	}
 }
 
@@ -50,8 +54,10 @@ void user_task2(void *p)
 		
 		myDelay(DELAY);
         
-		if (i%100==0) 
+		if (i%100==0) { 
 			uart_puts("return Task 2 \n");
+			task_yield();
+		}
 	}
 }
 

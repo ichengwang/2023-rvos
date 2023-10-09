@@ -166,7 +166,6 @@ err_t task_suspend(taskCB_t * ptcb)
     return OK;
 }
 
-// not use in 07
 err_t task_yield(void)
 {
     taskCB_t *ptcb;
@@ -183,9 +182,8 @@ err_t task_yield(void)
         /* put task to end of ready queue */
         list_insert_before((list_t*)&TCBRdy[ptcb->priority], (list_t*)ptcb);
         spin_unlock();
-        schedule();
-        return OK;
     }
-    schedule();
+ 	/* trigger a machine-level software interrupt */
+    softINT(1); //07-cooperation
     return OK;
 }

@@ -200,21 +200,19 @@ err_t task_yield(void)
     /* if the task stat is READY and on ready queue list */
     if (ptcb->state == TASK_READY)
     {
-        reg_t lock_status;
-        lock_status = spin_lock();
+        spin_lock();
         /* remove task from task list */
         list_remove((list_t*)ptcb);
         /* put task to end of ready queue */
         list_insert_before((list_t*)&TCBRdy[ptcb->priority], (list_t*)ptcb);
-        spin_unlock(lock_status);
-        schedule();
-        return OK;
+        spin_unlock();
     }
  	/* trigger a machine-level software interrupt */
-	int id = r_mhartid();
+	int id = r_mhartid(); //07-cooperation
 	*(uint32_t*)CLINT_MSIP(id) = 1;
     return OK;
 }
+
 
 //08
 static void taskDelayTicks(uint32_t ticks) 

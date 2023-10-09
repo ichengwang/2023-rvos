@@ -24,6 +24,8 @@ reg_t trap_handler(reg_t epc, reg_t cause)
 			 * acknowledge the software interrupt by clearing
     			 * the MSIP bit in mip.
 			 */
+			softINT(0); //07-cooperation
+			schedule();					
 			break;
 		case 7:
 			timer_handler();

@@ -8,6 +8,8 @@ extern taskCB_t * TCBRunning;
 void sched_init()
 {
 	w_mscratch(0);
+	/* enable machine-mode software interrupts. */
+	w_mie(r_mie() | MIE_MSIE);//07-cooperation	
 }
 
 
