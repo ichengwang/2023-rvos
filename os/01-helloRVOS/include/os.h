@@ -17,4 +17,7 @@ char uart_getc();
 int  kprintf(const char* s, ...);
 void panic(char *s);
 
+/* scanf */
+int  kscanf(const char* s, ...);
+
 #endif /* __OS_H__ */
