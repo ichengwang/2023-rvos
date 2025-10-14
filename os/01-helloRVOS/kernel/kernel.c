@@ -5,8 +5,15 @@ void start_kernel(void)
 	uart_init();
 	uart_puts("Hello, RVOS!\n");
 
-	int i=10;
-	kprintf("i=%d\n",i);
+	// 作業二 demo
+	int i;
+	char str[100];
+	kprintf("input a number & string\n");
+	int res = kscanf("%d %s", &i, str);
+	kprintf("i = %d\n",i);
+	kprintf("str = %s\n",str);
+	kprintf("res = %d\n",res);
+
 	while(1) 
 	{
 		char c = uart_getc();
