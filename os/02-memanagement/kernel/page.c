@@ -150,7 +150,7 @@ static void *page_alloc(int npages)
  * Free the memory block
  * - p: start address of the memory block
  */
-static  page_free(void *p)
+static void page_free(void *p)
 {
 	/*
 	 * Assert (TBD) if p is invalid
