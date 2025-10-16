@@ -13,6 +13,7 @@ static int _vscanf(const char* s, va_list vl)
 			case 'd': {
 				success = 0;
 				int *dst = va_arg(vl, int *);
+				int sign = 0;
 				int val = 0;
 				char c;
 				while(1) {
@@ -24,12 +25,19 @@ static int _vscanf(const char* s, va_list vl)
 					if(c >= '0' && c <= '9') {
 						val = val * 10 + c - '0';
 						success = 1;
+						if(!sign) {
+							sign = 1;
+						}
 					} else {
-						last = c;
-						break;
+						if(!sign && (c == '+' || c == '-')) {
+							sign = c == '+' ? 1 : -1;
+						} else {
+							last = c;
+							break;
+						}
 					}
 				}
-				*dst = val;
+				*dst = val * sign;
 				format = 0;
 				break;
 			}
