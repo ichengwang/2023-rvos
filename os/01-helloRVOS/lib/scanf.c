@@ -58,9 +58,10 @@ static int _vscanf(const char* s, va_list vl)
 			default:
 				break;
 			}
-		} else if (*s == '%') {
-			format = 1;
-		} else if (*s == ' ') {
+		} else if (*s == '%' || *s == ' ') {
+			if (*s == '%') {
+				format = 1;
+			}
 			while(1) {
 				char c;
 				if(last) {
